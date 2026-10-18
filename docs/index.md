@@ -34,18 +34,26 @@ Every module has the same 12 blocks, so you always know where to look:
 
 ```mermaid
 flowchart LR
-  S0([Step 0<br/>Scaffold + roadmap]):::done --> M1([M1 C-space<br/>Ch 2]):::done
-  M1 --> M2([M2 Rigid motions<br/>Ch 3]):::now
-  M2 --> M3([M3 Forward kinematics<br/>Ch 4]):::todo
-  M3 --> M4([M4 Velocity & Jacobian<br/>Ch 5]):::todo
-  M4 --> M5([M5 Inverse kinematics<br/>Ch 6]):::todo
-  M5 --> M6([M6–M12<br/>Ch 7–13]):::todo
-  M6 --> T([Tracks B–E<br/>aerial · rover · physical AI]):::todo
-  classDef done fill:#2e7d32,color:#fff,stroke:#1b5e20
-  classDef now fill:#f9a825,color:#000,stroke:#f57f17
-  classDef todo fill:#eceff1,color:#37474f,stroke:#90a4ae
+  subgraph A["Part A · Lynch & Park"]
+    M1[M1 C-space]:::d --> M2[M2 Rigid motions]:::d --> M3[M3 FK]:::d --> M4[M4 Jacobian]:::d
+    M4 --> M5[M5 IK]:::d --> M6[M6 Closed chains]:::d --> M7[M7 Dynamics]:::d --> M8[M8 Trajectories]:::d
+    M8 --> M9[M9 Planning]:::d --> M10[M10 Control]:::d --> M11[M11 Grasping]:::d --> M12[M12 Wheeled]:::d
+  end
+  subgraph T["Tracks"]
+    TB[B Aerial]:::d
+    TC[C Rover & SLAM]:::d
+    TD[D Physical AI]:::d
+    TE[E Learning glue]:::d
+  end
+  M7 --> TB
+  M12 --> TC
+  M10 --> TD
+  M5 --> TE
+  TE --> R([Your review]):::n
+  classDef d fill:#2e7d32,color:#fff,stroke:#1b5e20
+  classDef n fill:#f9a825,color:#000,stroke:#f57f17
 ```
 
-Green = written, amber = awaiting your review, grey = planned. The full chapter map is on the [Roadmap](roadmap.md).
+All 12 book modules and 4 tracks are written (green). Amber = waiting for your review. The full chapter map is on the [Roadmap](roadmap.md).
 
 <div class="lab-progress" data-lab-progress></div>
