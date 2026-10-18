@@ -86,7 +86,7 @@ For the 2R arm, \(\det J_v = L_1L_2\sin\theta_2\). It is zero at \(\theta_2 = 0^
 *Why "jam" is the right picture:* with the arm straight, both joints move the tip sideways (perpendicular to the arm), and neither can move it along the arm. You could spin the motors at any speed and still not move outward. Near a singularity, inverse kinematics (M5) asks for **huge** joint speeds, \(\dot\theta = J^{-1}\mathcal V\) blows up like \(1/\sin\theta_2\).
 
 ??? warning "Wrist singularities on 6-axis arms"
-    When two wrist axes line up (e.g., wrist roll parallel to base yaw), two columns of \(J\) become equal and the rank drops by one, even deep inside the workspace. Industrial controllers slow down or reroute near these. On the SO-ARM101, wrist roll lines up with the forearm, and the arm has only 5 joints, so rank ≤ 5 everywhere: one tool direction is always missing.
+    When two revolute axes become **collinear** (e.g., wrist roll lined up on the same line as base yaw), their two columns of \(J\) become equal and the rank drops by one, even deep inside the workspace. Industrial controllers slow down or reroute near these. On the SO-ARM101, wrist roll lines up with the forearm, and the arm has only 5 joints, so rank ≤ 5 everywhere: one tool direction is always missing.
 
 ## Part 4 — Manipulability ellipse from \(JJ^\top\)
 
@@ -175,14 +175,14 @@ For the 3R arm at \(\theta=(30^\circ, 60^\circ, -90^\circ)\): \(J_v = \begin{bma
 ## Current research
 
 - **Manipulability as a learned skill.** Geometry-aware methods treat manipulability ellipsoids as points on the manifold of symmetric positive-definite matrices, so robots can learn, track and transfer them ([Jaquier, Rozo, Caldwell, Calinon](https://arxiv.org/pdf/1811.11050)). ManiDP extends this to diffusion policies for posture-dependent bimanual tasks ([Li et al., arXiv 2510.23016](https://arxiv.org/pdf/2510.23016)).
-- **Manipulability in harvesting-robot design.** A 2025 fruit-harvesting system scores reachability maps with the Jacobian's singular values (manipulability = product of singular values, plus an isotropy index) ([Han, Cho, Kim, AgriEngineering 2025](https://www.mdpi.com/2624-7402/7/12/417)).
+- **Manipulability in harvesting-robot design.** A 2025 fruit-harvesting system builds reachability and inverse-reachability maps that include a manipulability-isotropy score (a Jacobian singular-value measure) to choose the robot base placement ([Han, Cho, Kim, AgriEngineering 2025](https://www.mdpi.com/2624-7402/7/12/417)).
 - **Jacobians inside learning.** Theseus makes nonlinear least squares (Gauss–Newton, Levenberg–Marquardt) differentiable in PyTorch, so Jacobian-based solvers for kinematics, SLAM and bundle adjustment can sit inside a network ([Pineda et al., NeurIPS 2022](https://arxiv.org/pdf/2207.09442)).
 - **GPU-parallel kinematics.** cuRobo evaluates kinematics for many configurations in parallel for motion generation ([cuRobo](https://curobo.org)).
 
 ## Challenges
 
 1. **Near-singular IK.** At \(\kappa = 100\), a 1 mm/s tip request needs joint speeds 100× larger along the weak direction. Damping (M5) trades accuracy for safety.
-2. **Payload at full stretch.** For a 2-link arm of total reach \(\ell\), holding a weight \(mg\) horizontally needs shoulder torque \(mg\ell\). With an example \(\ell = 0.35\) m and 0.5 kg, that is about 1.7 N·m (17 kg·cm) — above the 15 kg·cm stall rating of an STS3215, before counting the arm's own weight.
+2. **Payload at full stretch.** For a 2-link arm of total reach \(\ell\), holding a weight \(mg\) horizontally needs shoulder torque \(mg\ell\). With an example \(\ell = 0.35\) m and 0.5 kg, that is about 1.7 N·m (17.5 kg·cm) — comparable to the stall torque of a 7.4 V STS3215 (about 14–27 kg·cm depending on the gear-ratio variant) — and stall torque is not a safe holding load — before counting the arm's own weight.
 3. **Unit mixing.** \(J\) stacks angular (rad/s) and linear (m/s) rows, so \(\kappa\) and "volume" depend on the length unit. Scale by a characteristic length before comparing poses.
 4. **Estimating contact force from \(\tau\).** \(\mathcal F = (J^\top)^{\dagger}\tau\) amplifies servo-current noise near singularities, and hobby servos have friction that looks like force.
 

@@ -96,7 +96,7 @@
       if (!show.value.startsWith("force")) drawE(sc * E.s1, sc * E.s2, k.accent, "velocity ellipse: axes ∝ σ₁, σ₂ (unit joint speed)");
       if (!show.value.startsWith("velocity")) {
         const f1 = 1 / Math.max(E.s2, 1e-3), f2 = 1 / E.s1, cap = 3.5; // force axes ∝ 1/σ: long where velocity is short
-        drawE(Math.min(sc * f1 * 0.5, cap), Math.min(sc * f2 * 0.5, cap), k.red, "force ellipse: axes ∝ 1/σ₂, 1/σ₁ (τ on unit circle)");
+        drawE(Math.min(sc * f2 * 0.5, cap), Math.min(sc * f1 * 0.5, cap), k.red, "force ellipse: axes ∝ 1/σ₂, 1/σ₁ (τ on unit circle)");
       }
       ctx.fillStyle = k.accent; ctx.beginPath(); ctx.arc(X(p[0]), Y(p[1]), 4, 0, 7); ctx.fill();
       ctx.fillStyle = k.fg; ctx.font = "12px sans-serif"; ctx.fillText("dashed = reach limit", 8, 16);

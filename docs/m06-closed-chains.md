@@ -118,10 +118,10 @@ H_p = \begin{bmatrix} -b\sin\theta_3 & c\sin\theta_4\\ b\cos\theta_3 & -c\cos\th
 | Type | Rank drop in | What happens | Chair picture |
 |---|---|---|---|
 | **Actuator** (parallel / "forward") singularity | \(H_p\) | passive joints not determined; the platform gains a free, uncontrolled motion; motor torques for some loads → ∞ | chair goes floppy |
-| **Configuration** (serial / "inverse") singularity | end-effector Jacobian of the chain | platform loses a direction it can move in | chair locked flat |
+| **End-effector** (serial / "inverse") singularity | end-effector Jacobian of the chain | platform loses a direction it can move in | chair locked flat |
 | **C-space** singularity | full \(H\) | the constraint surface itself is not smooth (branches cross) | two folding shapes meet |
 
-**Redundant constraints.** If two loop equations say the same thing (rows of \(H\) linearly dependent), \(H\) is rank-deficient everywhere. Grübler then *undercounts* the DOF (it assumes independent constraints) — the parallelogram linkage and the Bennett linkage are classic examples.
+**Redundant constraints.** If two loop equations say the same thing (rows of \(H\) linearly dependent), \(H\) is rank-deficient everywhere. Grübler then *undercounts* the DOF (it assumes independent constraints) — a double parallelogram (a parallelogram four-bar with one extra parallel bar: Grübler says 0, yet it moves) and the spatial Bennett 4R linkage (Grübler says −2, yet it moves) are classic examples.
 
 ## Part 5 — Forces with Lagrange multipliers
 
@@ -172,7 +172,7 @@ The zero block makes it indefinite: Cholesky fails; use LDLᵀ, a Schur compleme
 
 - **Delta robots in the field.** A delta (Delta X) parallel robot with a pneumatic cut-and-grip end effector for strawberry harvesting, with field tests ([Ochoa & Mo, *Actuators* 2025](https://www.mdpi.com/2076-0825/14/2/42)).
 - **Learning Stewart FK.** DisGNet predicts a distance matrix with a graph neural network, then polishes with a GPU-parallel Newton–Raphson step — exactly "learned seed + exact refinement" ([Zhu et al., arXiv 2402.09077](https://arxiv.org/abs/2402.09077v1)).
-- **Closed loops in optimal control.** Trajectory optimization that keeps the closure constraints with analytical derivatives (instead of approximating as serial chains), letting walkers exploit their linkages ([De Matteïs et al., arXiv 2504.00642](https://arxiv.org/pdf/2504.00642)).
+- **Closed loops in optimal control.** Trajectory optimization that keeps the closure constraints with analytical derivatives (instead of approximating as serial chains), letting walkers exploit their linkages ([de Matteis et al., arXiv 2504.00642](https://arxiv.org/pdf/2504.00642)).
 - **GPU simulation of loops for RL.** Kamino, a GPU multi-body solver on NVIDIA Warp, handles closed kinematic loops natively; it trains a six-loop biped across 4096 parallel environments ([Tsounis et al., arXiv 2603.16536](https://arxiv.org/html/2603.16536v1)).
 
 ## Challenges

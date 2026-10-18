@@ -127,10 +127,10 @@ Mapping C-space → task space is **forward kinematics** (M3). Going back is **i
 
 ## Current research
 
-- **Convex decomposition of C-space.** *Graphs of Convex Sets* (Marcucci et al., *Science Robotics*, 2023) carves free C-space into convex pieces (IRIS regions) so planning becomes a fast convex optimization.
+- **Convex decomposition of C-space.** *Graphs of Convex Sets* (Marcucci et al., *Science Robotics*, 2023) plans over a cover of free C-space by convex pieces (e.g., IRIS regions), so collision-free planning becomes one fast convex optimization.
 - **GPU-parallel planning.** NVIDIA's cuRobo (2023) checks thousands of C-space samples at once against signed-distance fields — the same SDF idea as the shifted boundary method in DiffSim.
 - **Learned collision functions.** Neural signed distance fields of the robot body predict "distance to collision" for any configuration, giving smooth gradients for optimizers.
-- **Low-cost arms in research.** LeRobot's SO-100/SO-101 arms brought 5–6 DOF C-spaces into imitation-learning labs ([review](https://thinkrobotics.com/blogs/product-reviews-buying-guides/thinkrobotics-lerobot-so-101-6-axis-robotic-arm-review-ai-ready-open-source-and-built-for-learning); [sim-to-real pipeline example](https://aspireshowcase.dunked.com/building-a-sim-to-real-robotics-pipeline-imitation-learning-digital-twins-and-synthetic-training-for-the-so-101)).
+- **Low-cost arms in research.** LeRobot's SO-100/SO-101 arms brought 5–6 DOF C-spaces into imitation-learning labs (see [Track D](t-d-physical-ai.md) for the sources).
 
 ## Challenges
 

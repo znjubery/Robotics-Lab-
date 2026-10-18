@@ -213,10 +213,10 @@ If \(n>m\) (the widget's 3R arm reaching a 2-D point), infinitely many \(\theta\
 
 ## Current research
 
-- **Generative IK.** Diffusion models sample *many* IK solutions at once instead of one: IKDiffuser for multi-arm robots, with inference-time objectives like manipulability ([Zhang & Jiao, arXiv 2506.13087](https://arxiv.org/html/2506.13087v4)), and GraphDiff-IK, a graph diffusion model built from the robot's URDF for single/dual-arm and torso robots ([Huang et al., arXiv 2606.00086](https://arxiv.org/pdf/2606.00086)).
+- **Generative IK.** Diffusion models sample *many* IK solutions at once instead of one: IKDiffuser for kinematic trees with several end effectors, with inference-time objectives like manipulability ([Zhang & Jiao, arXiv 2506.13087](https://arxiv.org/html/2506.13087v4)), and GraphDiff-IK, a graph diffusion model built from the robot's URDF for single/dual-arm and torso robots ([Huang et al., arXiv 2606.00086](https://arxiv.org/pdf/2606.00086)).
 - **GPU-parallel IK.** cuRobo poses motion generation as parallel optimization on the GPU and reports a collision-free IK solver at over 7000 queries/s ([Sundaralingam et al., arXiv 2310.17274](https://arxiv.org/abs/2310.17274v2)) — the many-seed fix for Newton's local nature.
 - **Singularity-aware solvers.** Analytically informed IK computes a small perturbation off a singular pose from a local motion model, then hands it to a numerical solver; tested on a 7-DOF Kuka iiwa ([Müller, arXiv 2412.20409](https://arxiv.org/abs/2412.20409v1)). Classic background: selectively damped least squares ([Buss & Kim](https://mathweb.ucsd.edu/~sbuss/ResearchWeb/ikmethods/SdlsPaper.pdf)).
-- **Agricultural redundancy.** Redundant manipulators for crops use the null space to reach around stems and leaves, e.g. [Modelling and Simulation of a Redundant Agricultural Manipulator with Virtual Prototyping](https://journal.umy.ac.id/index.php/jrc/article/view/17121).
+- **Agricultural redundancy.** Redundant crop manipulators resolve their extra joints by optimization — e.g., SQP-based IK at task-space via-points with bounding-box collision avoidance in [Modelling and Simulation of a Redundant Agricultural Manipulator with Virtual Prototyping](https://journal.umy.ac.id/index.php/jrc/article/view/17121). Null-space projection (Part 5) is the closed-form alternative.
 
 ## Challenges
 

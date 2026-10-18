@@ -191,7 +191,7 @@ Try: move only θ₂, θ₃, θ₄ — the arm stays in one vertical plane, beca
 - **Calibration with PoE.** Local PoE models identified at several poses, blended over shoulder/elbow angles with a Fourier basis, cut the maximum positioning error by more than half on two 6-DoF industrial arms ([Lu, He, Julius, Wen, arXiv 2510.19962](https://arxiv.org/abs/2510.19962v1)).
 - **Converting between DH, PoE and URDF automatically.** The RobKin Interpreter turns serial-robot descriptions into DH, roll–pitch–yaw or PoE form and writes URDF ([Huczala et al., arXiv 2204.02629](https://arxiv.org/abs/2204.02629v2)).
 - **FK at GPU scale.** cuRobo runs forward and inverse kinematics for thousands of configurations in parallel on the GPU, for motion generation ([cuRobo](https://curobo.org)); differentiable FK layers let networks train through the kinematic chain ([arXiv 2301.09954](https://arxiv.org/pdf/2301.09954)).
-- **Arm design for agriculture.** A 2025 CMU thesis optimizes modular arm designs (the joint layout itself, i.e. the screw axes) for cluttered crops such as dual-arm pepper harvesting ([Guri, CMU RI](https://www.ri.cmu.edu/event/design-optimization-of-modular-manipulators-for-manipulation-in-cluttered-agricultural-environments/)).
+- **Arm design for agriculture.** A 2025 CMU thesis automates the design of modular, reconfigurable arms (which modules, in which layout — i.e. where the screw axes go) for cluttered crops, and applies it to arm placement for a dual-arm pepper harvester ([Guri, CMU RI](https://www.ri.cmu.edu/event/design-optimization-of-modular-manipulators-for-manipulation-in-cluttered-agricultural-environments/)).
 
 ## Challenges
 
