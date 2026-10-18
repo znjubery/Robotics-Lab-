@@ -101,7 +101,7 @@ The network \(\varepsilon_\phi\) is trained to predict the noise that was added 
 
 *Why this move:* predicting noise is again a least-squares regression, but its result \(\varepsilon_\phi\) is (up to scale) the **score** \(\nabla_a \log p(a\mid o)\). Each denoising step is a small gradient step uphill on the action density — so the chain lands on *one* mode (left or right), never the average.
 
-**Flow matching** (used in π0, π0.5, SmolVLA, GR00T N1.5+) learns a velocity field \(v_\phi(o, a, s)\) and integrates the ODE \(\dot a = v_\phi\) from noise at \(s = 0\) to an action at \(s = 1\) in ~10 Euler steps. Same idea, fewer steps.
+**Flow matching** (used in π0, π0.5, SmolVLA and GR00T N1's action module) learns a velocity field \(v_\phi(o, a, s)\) and integrates the ODE \(\dot a = v_\phi\) from noise at \(s = 0\) to an action at \(s = 1\) in ~10 Euler steps. Same idea, fewer steps.
 
 ??? question "What if we just discretized actions and used a classifier?"
     A softmax over bins *can* be multimodal — that is what RT-2 and OpenVLA do with 256 bins per dimension. But 7 dimensions × 256 bins decoded one token at a time is slow (a few Hz), and fine motions fall between bins. Diffusion and flow heads output a smooth 50-step chunk in one go.
@@ -129,7 +129,7 @@ flowchart LR
 | π0 (2024) | Physical Intelligence | flow matching | VLM + "action expert," 50-step chunks at 50 Hz, many robot types |
 | π0.5 (2025) | Physical Intelligence | flow matching + text sub-tasks | co-training on web + multi-robot data; cleans homes it never saw |
 | π\*0.6 (2025) | Physical Intelligence | flow matching | learns from its own experience with RL (Recap) |
-| GR00T N1 (2025) | NVIDIA | diffusion transformer | "System 2" VLM plans, "System 1" acts; humanoids; real + sim + human video |
+| GR00T N1 (2025) | NVIDIA | diffusion transformer (flow-matching loss) | "System 2" VLM plans, "System 1" acts; humanoids; real + sim + human video |
 | SmolVLA (2025) | Hugging Face / LeRobot | flow matching | small, runs on consumer GPUs; trained on community LeRobot datasets incl. SO-100/101 |
 
 *Why this move:* the VLM is a huge, already-trained **prior**. Fine-tuning on 50 demos is like ridge regression that shrinks toward a good prior instead of toward zero (Track E).
@@ -201,7 +201,7 @@ LeRobot uses a **leader–follower** pair: you move a passive leader arm by hand
 
 1. **Data cost.** ~50–200 demos per task at ~30–60 s each is 1–3 hours of a person's time per task; π0.5 used ~400 h of mobile-manipulation data. Ag tasks are seasonal — you can't re-record a V12 maize plant in December.
 2. **Speed vs accuracy.** HarvestFlex: VLA 32.6 s/pick vs modular 8.3 s. A 7B token VLA runs at a few Hz; flow heads + async inference help, but edge GPUs (Jetson) still limit model size.
-3. **Evaluation is noisy.** 50 real trials give a 95% interval of about ±12 percentage points at 70% success. Comparisons between policies need many more trials or world-model evaluators.
+3. **Evaluation is noisy.** 50 real trials give a 95% interval of about ±13 percentage points at 70% success. Comparisons between policies need many more trials or world-model evaluators.
 4. **Deformable, variable plants.** Leaves move, stalks bend, lighting changes; sim plants miss stiffness and damage (Find the Fruit: 86.7% → 28.9% on a stiffer plant).
 5. **Safety and gentleness.** No built-in force limits in a cloned policy; damage rates (4.1% in HarvestFlex) matter for fruit and for phenotyping samples.
 
