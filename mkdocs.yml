@@ -54,6 +54,20 @@ extra_javascript:
   - javascripts/mathjax.js
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
   - javascripts/lab.js
+  - javascripts/widgets/m03.js
+  - javascripts/widgets/m04.js
+  - javascripts/widgets/m05.js
+  - javascripts/widgets/m06.js
+  - javascripts/widgets/m07.js
+  - javascripts/widgets/m08.js
+  - javascripts/widgets/m09.js
+  - javascripts/widgets/m10.js
+  - javascripts/widgets/m11.js
+  - javascripts/widgets/m12.js
+  - javascripts/widgets/tb.js
+  - javascripts/widgets/tc.js
+  - javascripts/widgets/td.js
+  - javascripts/widgets/te.js
 
 extra_css:
   - stylesheets/lab.css
@@ -66,6 +80,21 @@ nav:
   - "Part A · Foundations (Lynch & Park)":
       - "M1 · Configuration space (Ch 2)": m01-configuration-space.md
       - "M2 · Rigid-body motions (Ch 3)": m02-rigid-body-motions.md
+      - "M3 · Forward kinematics (Ch 4)": m03-forward-kinematics.md
+      - "M4 · Velocity kinematics & statics (Ch 5)": m04-velocity-kinematics.md
+      - "M5 · Inverse kinematics (Ch 6)": m05-inverse-kinematics.md
+      - "M6 · Closed chains (Ch 7)": m06-closed-chains.md
+      - "M7 · Dynamics of open chains (Ch 8)": m07-dynamics.md
+      - "M8 · Trajectory generation (Ch 9)": m08-trajectory-generation.md
+      - "M9 · Motion planning (Ch 10)": m09-motion-planning.md
+      - "M10 · Robot control (Ch 11)": m10-robot-control.md
+      - "M11 · Grasping & manipulation (Ch 12)": m11-grasping-manipulation.md
+      - "M12 · Wheeled mobile robots (Ch 13)": m12-wheeled-mobile-robots.md
+  - "Tracks · Beyond the book":
+      - "B · Aerial robots (Crazyflie)": t-b-aerial.md
+      - "C · Rover: estimation & SLAM": t-c-rover-estimation.md
+      - "D · Physical AI": t-d-physical-ai.md
+      - "E · Learning & differentiable glue": t-e-learning-glue.md
   - Words: words.md
   - Review:
       - "Step 1 review": review/step1-review.md

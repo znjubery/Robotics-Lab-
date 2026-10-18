@@ -363,13 +363,22 @@
   const WIDGETS = { cspace, grubler, rotation, noncommute, screw };
   function init() {
     document.querySelectorAll("[data-widget]").forEach((n) => {
-      if (n.dataset.ready) return; n.dataset.ready = "1";
+      if (n.dataset.ready) return;
       const f = WIDGETS[n.dataset.widget];
-      if (f) { try { f(n); } catch (e) { n.textContent = "Widget failed: " + e.message; } }
+      if (!f) return; // its module file may register later
+      n.dataset.ready = "1";
+      try { f(n); } catch (e) { n.textContent = "Widget failed: " + e.message; }
     });
     document.querySelectorAll(".quiz").forEach((q) => { if (!q.dataset.ready) { q.dataset.ready = "1"; quiz(q); } });
     progress();
   }
+  // Public API for per-module widget files (docs/javascripts/widgets/*.js):
+  //   Lab.register("name", function (root) { ... })
+  window.Lab = {
+    css, colors, fmt, el, slider, canvas, deg,
+    matmul, transpose, det3, skew, rodrigues, apply, project, drawFrame, drawBox, matrixHTML,
+    register(name, fn) { WIDGETS[name] = fn; init(); },
+  };
   if (window.document$) window.document$.subscribe(init); else document.addEventListener("DOMContentLoaded", init);
   // redraw in new colours when the theme toggles
   new MutationObserver(() => document.querySelectorAll("[data-widget] input").forEach((i) => i.dispatchEvent(new Event("input"))))
