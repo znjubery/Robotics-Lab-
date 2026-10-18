@@ -205,8 +205,8 @@
         g.fillStyle = col; arr.forEach((v, r) => { g.beginPath(); g.arc(gx(r), gy(v), 3, 0, 7); g.fill(); });
         g.fillText(lab, 55, yoff);
       };
-      line(curve.k1, c.primary, "no chunking (k = 1)", 34);
-      line(curve.kk, c.accent, "chunk k = " + kS.value, 48);
+      line(curve.k1, c.primary, "no chunking (k = 1)", gy(0.32));
+      line(curve.kk, c.accent, "chunk k = " + kS.value, gy(0.32) + 16);
       g.strokeStyle = c.fg; g.lineWidth = 2; g.beginPath(); g.arc(gx(R), gy(ev.rate), 7, 0, 7); g.stroke();
 
       const n = ev.c;

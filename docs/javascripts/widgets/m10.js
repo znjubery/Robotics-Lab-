@@ -31,12 +31,13 @@
       if (!(aw && sat)) z += (thd - th) * dt; // clamping anti-windup: freeze ∫e while saturated
     }
     // metrics
-    let peak = 0; for (const v of ths) peak = Math.max(peak, v);
     const fin = ths[ths.length - 1];
-    const os = thd !== 0 ? Math.max(0, (100 * (peak - thd)) / Math.abs(thd)) : 0;
-    let tset = null; const band = 0.02 * Math.abs(thd);
-    for (let i = ths.length - 1; i >= 0; i--) if (Math.abs(ths[i] - thd) > band) { tset = i + 1 < ts.length ? ts[i + 1] : null; break; }
-    if (tset === null && Math.abs(ths[0] - thd) <= band) tset = 0;
+    // overshoot and 2% settling are measured against the final value (standard step-response definition)
+    const sgn = Math.sign(fin) || 1;
+    let pk = 0; for (const v of ths) pk = Math.max(pk, sgn * v);
+    const os = Math.abs(fin) > 1e-6 ? Math.max(0, (100 * (pk - Math.abs(fin))) / Math.abs(fin)) : 0;
+    let tset = 0; const band = 0.02 * Math.abs(fin);
+    for (let i = ths.length - 1; i >= 0; i--) if (Math.abs(ths[i] - fin) > band) { tset = i + 1 < ts.length ? ts[i + 1] : null; break; }
     let tmaxUsed = 0; for (const v of taus) tmaxUsed = Math.max(tmaxUsed, Math.abs(v));
     return { ts, ths, taus, os, tset, ess: thd - fin, tmaxUsed };
   }
@@ -102,15 +103,15 @@
     const plots = el("div"); plots.style.flex = "1 1 300px"; plots.style.maxWidth = "420px"; pics.appendChild(plots);
     const P1 = canvas(plots, 420, 150), P2 = canvas(plots, 420, 110);
     const out = el("div", { class: "lab-readout" }); root.appendChild(out);
-    const kp = slider(ui, "Kp", 0, 20, 0.1, 4, draw, " N·m/rad");
-    const kd = slider(ui, "Kd", 0, 2, 0.01, 0.3, draw, " N·m·s");
-    const ki = slider(ui, "Ki", 0, 20, 0.1, 0, draw, " N·m/(rad·s)");
+    const kp = slider(ui, "Kp [N·m/rad]", 0, 20, 0.1, 4, draw, "");
+    const kd = slider(ui, "Kd [N·m·s]", 0, 2, 0.01, 0.3, draw, "");
+    const ki = slider(ui, "Ki [N·m/rad/s]", 0, 20, 0.1, 0, draw, "");
     const thd = slider(ui, "target θd", -120, 120, 1, 60, draw, "°");
-    const tm = slider(ui, "torque limit", 0.2, 5, 0.1, 5, draw, " N·m");
-    const row = el("div", { class: "lab-row" });
-    const mk = (txt, on) => { const c = el("input", { type: "checkbox" }); c.checked = on; const l = el("label", {}); l.style.marginRight = "0.8rem"; l.append(c, document.createTextNode(" " + txt)); row.appendChild(l); c.addEventListener("change", draw); return c; };
+    const tm = slider(ui, "τ limit [N·m]", 0.2, 5, 0.1, 5, draw, "");
+    const row = el("div", { class: "lab-row" }); row.style.gridColumn = "1 / -1"; row.style.flexWrap = "wrap";
+    const mk = (txt, on) => { const c = el("input", { type: "checkbox" }); c.checked = on; const l = el("label", {}); l.style.marginRight = "0.8rem"; l.style.whiteSpace = "nowrap"; l.append(c, document.createTextNode(" " + txt)); row.appendChild(l); c.addEventListener("change", draw); return c; };
     row.appendChild(el("span", { class: "lab-label" }, "Switches"));
-    const cg = mk("gravity", true), cf = mk("gravity feedforward", false), ca = mk("anti-windup", false);
+    const cg = mk("gravity", true), cf = mk("feedforward", false), ca = mk("anti-windup", false);
     ui.appendChild(row);
 
     function draw() {
@@ -118,7 +119,7 @@
       const o = { Kp: +kp.value, Ki: +ki.value, Kd: +kd.value, thd: deg(+thd.value), grav: cg.checked, ff: cf.checked, tmax: +tm.value, aw: ca.checked };
       const r = simPID(o), th = theory(o.Kp, o.Kd, o.thd, o.grav, o.ff);
       // arm picture at the final state, ghost at the target
-      const c = A.ctx, cx = 100, cy = 85, Lp = 70; c.clearRect(0, 0, 200, 200);
+      const c = A.ctx, cx = 100, cy = 70, Lp = 75; c.clearRect(0, 0, 200, 200);
       const tip = (a) => [cx + Lp * Math.sin(a), cy + Lp * Math.cos(a)];
       c.strokeStyle = k.light; c.setLineDash([4, 3]); c.lineWidth = 3; c.beginPath(); c.moveTo(cx, cy); c.lineTo(...tip(o.thd)); c.stroke(); c.setLineDash([]);
       // trace of the tip over time
@@ -131,14 +132,14 @@
       if (o.grav) { c.strokeStyle = k.red; c.lineWidth = 1.5; c.beginPath(); c.moveTo(170, 120); c.lineTo(170, 150); c.lineTo(165, 143); c.moveTo(170, 150); c.lineTo(175, 143); c.stroke(); c.fillStyle = k.red; c.fillText("g", 178, 140); }
       // plots
       const D = (v) => (v * 180) / Math.PI;
-      plot(P1.ctx, 420, 150, r.ts, [{ y: r.ths.map(D), c: k.primary }], { title: "θ(t) [°]", refs: [{ v: +thd.value, c: k.accent }], bands: [{ lo: +thd.value - 0.02 * Math.abs(+thd.value), hi: +thd.value + 0.02 * Math.abs(+thd.value), c: "rgba(67,160,71,0.15)" }], vline: r.tset, d: 0 });
+      plot(P1.ctx, 420, 150, r.ts, [{ y: r.ths.map(D), c: k.primary }], { title: "θ(t) [°]", refs: [{ v: +thd.value, c: k.accent }], bands: [{ lo: D(r.ths[r.ths.length - 1]) - 0.02 * Math.abs(D(r.ths[r.ths.length - 1])), hi: D(r.ths[r.ths.length - 1]) + 0.02 * Math.abs(D(r.ths[r.ths.length - 1])), c: "rgba(67,160,71,0.18)" }], vline: r.tset, d: 0 });
       plot(P2.ctx, 420, 110, r.ts, [{ y: r.taus, c: k.red }], { title: "τ(t) [N·m]", refs: [{ v: o.tmax, c: k.light }, { v: -o.tmax, c: k.light }], d: 1 });
       const sat = r.tmaxUsed >= o.tmax - 1e-9;
       const gNote = o.grav && !o.ff ? (o.Ki > 0 ? "integral removes the gravity offset" : `PD alone sags: predicted e<sub>ss</sub> ≈ mgl·sin θ<sub>ss</sub>/Kp`) : "no steady gravity load on the error";
       out.innerHTML =
         `<b>Theory (linearised PD about θd):</b> k = Kp${o.grav ? " + mgl·cos θd" : ""} = ${fmt(th.k, 2)} N·m/rad, ω<sub>n</sub> = √(k/I) = <b>${fmt(th.wn, 2)}</b> rad/s, ζ = (b+Kd)/(2√(kI)) = <b>${fmt(th.z, 3)}</b> → ` +
         `overshoot ${th.z < 1 ? fmt(th.Mp, 1) + "%" : "0% (no oscillation)"}, t<sub>s</sub> ≈ 4/(ζω<sub>n</sub>) = ${isFinite(th.ts) ? fmt(th.ts, 2) + " s" : "∞"}.<br>` +
-        `<b>Simulation (RK4, 1 ms):</b> overshoot <b>${fmt(r.os, 1)}%</b>, 2% settling <b>${r.tset == null ? "not within 4 s" : fmt(r.tset, 2) + " s"}</b>, final error <b>${fmt(D(r.ess), 2)}°</b> (${gNote}).` +
+        `<b>Simulation (RK4, 1 ms, full nonlinear gravity):</b> overshoot <b>${fmt(r.os, 1)}%</b>, 2% settling (about the final value) <b>${r.tset == null ? "not within 4 s" : fmt(r.tset, 2) + " s"}</b>, final error <b>${fmt(D(r.ess), 2)}°</b> (${gNote}).` +
         `${sat ? ` <b style="color:${k.red}">Torque saturated at ±${fmt(o.tmax, 1)} N·m</b>${o.Ki > 0 && !o.aw ? " — watch the integral wind up." : "."}` : ""}<br>` +
         `<i>Example values:</i> I = ${P0.I} kg·m², b = ${P0.b} N·m·s, mgl = ${P0.mgl} N·m. Theory ignores Ki and saturation; the simulation does not.`;
     }
@@ -158,11 +159,11 @@
       const k = colors(), xw = 0.1;
       const r = simImp({ K: +K.value, B: +B.value, xd: xw + +xd.value, xw });
       const c = A.ctx; c.clearRect(0, 0, 420, 110);
-      const S = 2400, X = (x) => 40 + S * x, wx = X(xw);
+      const S = 1800, X = (x) => 40 + S * x, wx = X(xw);
       // wall
       c.fillStyle = k.light; c.fillRect(wx, 10, 14, 90); c.fillStyle = k.fg; c.font = "12px sans-serif"; c.fillText("wall (5000 N/m)", wx + 18, 24);
       // target ghost
-      const gx = X(xw + +xd.value); c.strokeStyle = k.accent; c.setLineDash([4, 3]); c.beginPath(); c.moveTo(gx, 15); c.lineTo(gx, 95); c.stroke(); c.setLineDash([]); c.fillStyle = k.accent; c.fillText("x_d", gx + 3, 108);
+      const gx = X(xw + +xd.value); c.strokeStyle = k.accent; c.setLineDash([4, 3]); c.beginPath(); c.moveTo(gx, 15); c.lineTo(gx, 95); c.stroke(); c.setLineDash([]); c.fillStyle = k.accent; c.fillText("x_d", gx - 24, 108);
       // spring from target anchor to block (virtual), drawn above
       const bx = X(r.xss) - 26; // block right face = x
       const zig = (x0, x1, y) => { c.beginPath(); c.moveTo(x0, y); const n = 10; for (let i = 1; i < n; i++) c.lineTo(x0 + ((x1 - x0) * i) / n, y + (i % 2 ? -6 : 6)); c.lineTo(x1, y); c.stroke(); };

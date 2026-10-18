@@ -194,10 +194,10 @@
     const seed = slider(ui, "seed", 1, 50, 1, 7, schedule, "");
     const rob = slider(ui, "robot radius", 0, 0.5, 0.05, 0.15, schedule, "");
     const wt = slider(ui, "A* weight w", 0, 3, 0.1, 1, schedule, "");
-    const row2 = el("div", { class: "lab-row" });
+    const row2 = el("div", { class: "lab-row" }); row2.style.flexWrap = "wrap";
     const sm = el("input", { type: "checkbox" }); const rst = el("button", { class: "md-button" }, "Reset scene");
     rst.style.padding = "0.1rem 0.6rem"; rst.style.fontSize = "0.7rem";
-    const lab = el("label", {}, ""); lab.append(sm, document.createTextNode(" shortcut-smooth the path"));
+    const lab = el("label", {}, ""); lab.style.whiteSpace = "nowrap"; lab.style.marginRight = "0.8rem"; lab.append(sm, document.createTextNode(" shortcut-smooth"));
     row2.append(el("span", { class: "lab-label" }, "Extras"), lab, rst); ui.appendChild(row2);
     sel.addEventListener("change", schedule); sm.addEventListener("change", schedule);
     rst.addEventListener("click", () => { world = DEF(); rob.value = 0.15; rob.dispatchEvent(new Event("input")); schedule(); });

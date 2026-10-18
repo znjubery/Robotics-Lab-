@@ -179,7 +179,7 @@
         const curve = (p, col, w, dash) => { g.strokeStyle = col; g.lineWidth = w; g.setLineDash(dash); g.beginPath(); for (let i = 0; i <= 80; i++) { const x = (4 * i) / 80, y = Math.max(-0.2, Math.min(2.7, fexp(p, x))); i ? g.lineTo(X(x), Y(y)) : g.moveTo(X(x), Y(y)); } g.stroke(); g.setLineDash([]); };
         const p1 = p0.map((v, i) => v + sol.x[i]), it = lmIterate(p0, lmd, lam, 15);
         curve(p0, c.light, 2, []); curve(p1, c.accent, 2.5, []); curve(it.p, c.green, 2, [5, 4]);
-        g.fillStyle = c.fg; g.fillText("fit y = a·e^(−b·x) + c   grey = start, amber = 1 step, green = 15 steps", 8, 16);
+        g.fillStyle = c.fg; g.fillText("fit y = a·e^(−b·x) + c", 8, 16); g.fillStyle = c.light; g.fillText("grey = start, amber = 1 step, green dashed = 15 steps", 50, 34);
         // mini cost history
         g.fillText("cost per iteration", 230, 70);
         const cm = Math.max(...it.cost.filter(isFinite)), hx = (k) => 230 + k * 7, hy = (v) => 130 - (Math.log10(Math.max(v, 1e-4)) + 4) / (Math.log10(cm) + 4) * 50;
@@ -202,7 +202,7 @@
       const ns = Fk.sig.length, bw = Math.min(40, 300 / ns);
       axes(f, 40, 24, 350, 100, c);
       Fk.sig.forEach((s, i) => { const ff = (s * s) / (s * s + lam * lam); f.fillStyle = c.accent; f.fillRect(42 + i * bw, 100 - 76 * ff, Math.max(bw - 1, 1), 76 * ff); });
-      f.fillStyle = c.fg; f.fillText("filter factors fᵢ = σᵢ²/(σᵢ² + λ²), one bar per singular value σᵢ (largest left)", 4, 14);
+      f.fillStyle = c.fg; f.fillText("filter factors fᵢ = σᵢ²/(σᵢ² + λ²), one bar per σᵢ", 4, 14);
       f.fillText("1", 28, 30); f.fillText("0", 28, 102); f.fillText(`σ: ${fmt(Fk.sig[0], 2)} … ${fmt(Fk.sig[ns - 1], 3)}`, 44, 116);
       out.innerHTML = `<b>Same equation:</b> x̂ = (AᵀA + λ²I)⁻¹ Aᵀb, λ = ${fmt(lam, 3)}. ${extra}<br>` +
         `‖x̂‖ = ${fmt(sol.xn, 3)}, ‖Ax̂ − b‖ = ${fmt(sol.rn, 3)}, effective parameters Σfᵢ = <b>${fmt(sol.dof, 2)}</b> of ${Fk.n}, condition number of AᵀA + λ²I = ${sol.kappa > 1e6 ? sol.kappa.toExponential(1) : fmt(sol.kappa, 1)}.`;
