@@ -130,7 +130,7 @@
     const side = el("div", { class: "lab-side" }); pics.appendChild(side);
     const t1 = slider(ui, "θ₁", -180, 180, 1, 0, draw, "°");
     const t2 = slider(ui, "θ₂", -180, 180, 1, 90, draw, "°");
-    const fa = slider(ui, "force direction", -180, 180, 1, -90, draw, "°");
+    const fa = slider(ui, "force direction", -180, 180, 1, -135, draw, "°");
     const fm = slider(ui, "force size", 0, 20, 0.5, 10, draw, " N");
     function draw() {
       const k = colors(), ctx = C.ctx, s = 75, cx = 110, cy = 170;

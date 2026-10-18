@@ -30,17 +30,18 @@
   }
   if (typeof module !== "undefined") module.exports = { twist, expStep, eulerPath, wigglePath };
 
-  function drawRover(ctx, X, Y, q, S, fill, stroke) {
-    const c = Math.cos(q[2]), s = Math.sin(q[2]);
-    const body = [[-0.12, -WD], [0.16, -WD], [0.22, 0], [0.16, WD], [-0.12, WD]];
+  function drawRover(ctx, X, Y, q, sc, fill, stroke, alpha = 1) {
+    const c = Math.cos(q[2]), s = Math.sin(q[2]), D = WD * sc;
+    const body = [[-0.12 * sc, -D], [0.16 * sc, -D], [0.22 * sc, 0], [0.16 * sc, D], [-0.12 * sc, D]];
+    ctx.globalAlpha = alpha;
     ctx.beginPath();
     body.forEach(([a, b], i) => { const x = q[0] + c * a - s * b, y = q[1] + s * a + c * b; i ? ctx.lineTo(X(x), Y(y)) : ctx.moveTo(X(x), Y(y)); });
     ctx.closePath(); ctx.fillStyle = fill; ctx.fill(); ctx.strokeStyle = stroke; ctx.lineWidth = 1; ctx.stroke();
     for (const sd of [-1, 1]) { // wheels
-      const a0 = [q[0] - 0.06 * c - s * sd * WD, q[1] - 0.06 * s + c * sd * WD], a1 = [q[0] + 0.06 * c - s * sd * WD, q[1] + 0.06 * s + c * sd * WD];
+      const a0 = [q[0] - 0.06 * sc * c - s * sd * D, q[1] - 0.06 * sc * s + c * sd * D], a1 = [q[0] + 0.06 * sc * c - s * sd * D, q[1] + 0.06 * sc * s + c * sd * D];
       ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(X(a0[0]), Y(a0[1])); ctx.lineTo(X(a1[0]), Y(a1[1])); ctx.stroke();
     }
-    ctx.lineWidth = 1;
+    ctx.lineWidth = 1; ctx.globalAlpha = 1;
   }
   function fitView(pts, w, h, pad, minSpan) {
     let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
@@ -92,8 +93,8 @@
       line(ex, k.primary, 2.5);
       line(eu, k.red, 1.5);
       ctx.fillStyle = k.red; eu.forEach((p) => { ctx.beginPath(); ctx.arc(X(p[0]), Y(p[1]), 2.2, 0, 7); ctx.fill(); });
-      drawRover(ctx, X, Y, [0, 0, 0], V.S, k.light + "80", k.fg);
-      drawRover(ctx, X, Y, ex[N], V.S, k.accent, k.fg);
+      drawRover(ctx, X, Y, [0, 0, 0], 1, k.light, k.fg, 0.5);
+      drawRover(ctx, X, Y, ex[N], 1, k.accent, k.fg);
       ctx.font = "12px sans-serif"; ctx.fillStyle = k.primary; ctx.fillText("exact arc e^[𝒱]t", 6, 14);
       ctx.fillStyle = k.red; ctx.fillText("Euler steps", 120, 14);
       if (sl > 0) { ctx.fillStyle = k.green; ctx.fillText("true path with slip", 210, 14); }
@@ -114,9 +115,9 @@
       ctx.strokeStyle = k.red; ctx.lineWidth = 2; ctx.beginPath();
       hs.forEach((hh, i) => (i ? ctx.lineTo(lx(hh), ly(errs[i])) : ctx.moveTo(lx(hh), ly(errs[i])))); ctx.stroke();
       // slope-1 guide through the h = 0.01 point
-      ctx.strokeStyle = k.light; ctx.setLineDash([4, 3]); ctx.beginPath(); ctx.moveTo(lx(0.01), ly(errs[0])); ctx.lineTo(lx(1), ly(errs[0] * 100)); ctx.stroke(); ctx.setLineDash([]);
+      ctx.strokeStyle = k.light; ctx.setLineDash([4, 3]); ctx.beginPath(); ctx.moveTo(lx(0.01), ly(errs[0] / 4)); ctx.lineTo(lx(1), ly(errs[0] * 25)); ctx.stroke(); ctx.setLineDash([]);
       ctx.fillStyle = k.accent; ctx.beginPath(); ctx.arc(lx(h), ly(errNow), 5, 0, 7); ctx.fill(); ctx.restore();
-      ctx.fillStyle = k.light; ctx.fillText("dashed = slope 1", 120, 252);
+      ctx.fillStyle = k.light; ctx.fillText("dashed = slope 1 (shifted)", 82, 252);
       // --- panel B: wiggle (Lie bracket) ---
       const eps = +ep.value, nc = +NC.value, WP = wigglePath(eps, nc), M = Math.max(1, Math.round(anim * (WP.length - 1)));
       ctx = B.ctx; ctx.clearRect(0, 0, 300, 260);
@@ -125,8 +126,8 @@
       ctx.strokeStyle = k.primary; ctx.lineWidth = 1.5; ctx.beginPath();
       for (let i = 0; i <= M; i++) { const p = WP[i]; i ? ctx.lineTo(XB(p[0]), YB(p[1])) : ctx.moveTo(XB(p[0]), YB(p[1])); }
       ctx.stroke(); ctx.lineWidth = 1;
-      drawRover(ctx, XB, YB, [0, 0, 0], VB.S, k.light + "60", k.light);
-      drawRover(ctx, XB, YB, WP[M], VB.S, k.accent, k.fg);
+      drawRover(ctx, XB, YB, [0, 0, 0], 0.35, k.light, k.light, 0.4);
+      drawRover(ctx, XB, YB, WP[M], 0.35, k.accent, k.fg);
       ctx.fillStyle = k.fg; ctx.font = "12px sans-serif"; ctx.fillText("Wiggle: drive ε, spin ε, back ε, spin −ε", 6, 14);
       const qf = WP[WP.length - 1];
       // --- readout ---

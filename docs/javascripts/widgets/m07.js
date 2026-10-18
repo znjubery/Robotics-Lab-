@@ -145,7 +145,7 @@
     function draw() {
       const k = colors();
       // ---- arm ----
-      let ctx = A.ctx, s = 80, cx = 160, cy = 140;
+      let ctx = A.ctx, s = 76, cx = 160, cy = 146;
       ctx.clearRect(0, 0, 320, 300);
       ctx.strokeStyle = k.light; ctx.setLineDash([3, 3]);
       ctx.beginPath(); ctx.arc(cx, cy, s * (P.L1 + P.L2), 0, 7); ctx.stroke(); ctx.setLineDash([]);
