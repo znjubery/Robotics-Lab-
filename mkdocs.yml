@@ -1,0 +1,71 @@
+site_name: Robotics Learning Lab
+site_description: Interactive companion to Lynch & Park, Modern Robotics — concepts, math, and links to SciML, genomics and 3D vision
+site_author: Zaki Jubery
+site_url: https://znjubery.github.io/robotics-lab-/
+repo_url: https://github.com/znjubery/robotics-lab-
+repo_name: znjubery/robotics-lab-
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - navigation.indexes
+    - content.code.copy
+    - search.highlight
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: amber
+      toggle:
+        icon: material/weather-night
+        name: Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: amber
+      toggle:
+        icon: material/weather-sunny
+        name: Light mode
+  icon:
+    logo: material/robot-industrial
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+  - javascripts/lab.js
+
+extra_css:
+  - stylesheets/lab.css
+
+nav:
+  - Start here: index.md
+  - Roadmap: roadmap.md
+  - Symbols: symbols.md
+  - Math bridges: connections.md
+  - "Part A · Foundations (Lynch & Park)":
+      - "M1 · Configuration space (Ch 2)": m01-configuration-space.md
+      - "M2 · Rigid-body motions (Ch 3)": m02-rigid-body-motions.md
+  - Words: words.md
+  - Review:
+      - "Step 1 review": review/step1-review.md

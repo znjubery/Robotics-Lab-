@@ -1,0 +1,46 @@
+name: Deploy lab to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: Build (strict) — fails on broken links or nav
+        run: mkdocs build --strict
+      - name: Render check — every page has math or a widget mount, JS parses
+        run: |
+          node --check docs/javascripts/lab.js
+          for f in site/m0*/index.html; do
+            grep -q 'arithmatex' "$f" || { echo "no math in $f"; exit 1; }
+          done
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
