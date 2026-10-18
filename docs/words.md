@@ -55,9 +55,9 @@ Every term in plain words first, then the precise version. Grows with each modul
 | Newton–Raphson IK | measure the miss, correct, repeat | \(\theta^{k+1}=\theta^k+J^\dagger e^k\) | M5 |
 | Pseudoinverse | the "best" inverse for non-square or rank-deficient matrices | \(J^\dagger=\sum\sigma_i^{-1}v_iu_i^\top\) over \(\sigma_i>0\) | M5 |
 | Damped least squares | cautious steps that never blow up | \(\Delta\theta=J^\top(JJ^\top+\lambda^2I)^{-1}e\) | M5 |
-| Push-through identity | flip which side you invert | \((A^\top A+\lambda I)^{-1}A^\top=A^\top(AA^\top+\lambda I)^{-1}\) | M5 |
+| Push-through identity | flip which side you invert | \((A^\top A+\lambda^2 I)^{-1}A^\top=A^\top(AA^\top+\lambda^2 I)^{-1}\) (holds for any damping) | M5 |
 | Null space | joint motions that don't move the hand | \(\{\dot\theta: J\dot\theta=0\}\), projector \(I-J^\dagger J\) | M5 |
-| Levenberg–Marquardt | Newton with an adjustable safety brake | \((J^\top J+\lambda I)\delta=-J^\top r\), \(\lambda\) adapted | M5 |
+| Levenberg–Marquardt | Newton with an adjustable safety brake | \((J^\top J+\lambda^2 I)\delta=-J^\top r\), \(\lambda\) adapted (LM codes often write \(\lambda\) for our \(\lambda^2\)) | M5 |
 | Closed chain | links forming at least one loop | mechanism whose graph has cycles | M6 |
 | Loop-closure equation | going around the loop brings you back | \(\prod_i T_i(\theta)=I\), i.e. \(g(\theta)=0\) | M6 |
 | Active / passive joint | motor-driven / free to follow | \(\theta=(\theta_a,\theta_p)\) | M6 |
@@ -152,7 +152,7 @@ Every term in plain words first, then the precise version. Grows with each modul
 | EKF | Kalman filter with Jacobians for curved models | linearize \(f,h\) at the estimate | Track C |
 | NIS | a check that the filter's doubt is honest | \(y^\top S^{-1}y\), mean = measurement dimension | Track C |
 | Factor graph | every measurement as a spring between unknowns | sum of weighted residuals | Track C |
-| Loop closure | recognizing a place you've been | factor linking far-apart poses | Track C |
+| Loop closure | recognizing a place you've been (not M6's closed-chain loop-closure equation) | factor linking far-apart poses | Track C |
 | Visual odometry | using the camera as the odometer | chain relative poses \(T_{k,k+1}\) | Track C |
 | Policy | the robot's "what do I do now" rule | distribution \(\pi(a\mid o)\) over actions given observation | Track D |
 | Behavior cloning (BC) | copy the expert's action in each situation | maximum-likelihood regression of \(a\) on \(o\) from demos | Track D |
@@ -170,7 +170,7 @@ Every term in plain words first, then the precise version. Grows with each modul
 | Ridge / Tikhonov | fit, but keep the answer small | add \(\lambda^2\lVert x\rVert^2\) to the squared misfit | Track E |
 | Gauss–Newton | linearize, solve least squares, repeat | step \((A^\top A)\Delta x=A^\top r\) with \(A=\partial f/\partial x\) | Track E |
 | Filter factor | how much of each direction the fit keeps | \(f_i=\sigma_i^2/(\sigma_i^2+\lambda^2)\) | Track E |
-| Effective parameters | how many directions really get fitted | \(\sum_i f_i=\mathrm{tr}(H)\) | Track E |
+| Effective parameters | how many directions really get fitted | \(\sum_i f_i=\mathrm{tr}(H)\), \(H\) = hat matrix (not Track C's \(H\)) | Track E |
 | L-curve | plot of answer size vs misfit as λ changes | \(\log\lVert x_\lambda\rVert\) vs \(\log\lVert Ax_\lambda-b\rVert\) | Track E |
 | Posterior covariance | the error bars after seeing data | \(\sigma_e^2(A^\top A+\lambda^2I)^{-1}\) | Track E |
 | Adjoint method | get all gradients with one backward solve | solve \(K^\top\lambda=\partial L/\partial u\) | Track E |

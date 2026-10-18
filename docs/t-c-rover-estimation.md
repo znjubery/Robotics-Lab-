@@ -141,14 +141,16 @@ flowchart LR
 
 | Here | DiffSim / FVEM | Genomics-Lab | 3D vision |
 |---|---|---|---|
-| \(K = P^-H^\top(HP^-H^\top + R)^{-1}\) | data assimilation (EnKF) in crop models, e.g. APSIM | **BLUP**: \(\hat u = GZ^\top(ZGZ^\top + \sigma_e^2 I)^{-1}(y - X\hat\beta)\) — same Gaussian conditioning with \(P^-\to G\), \(H\to Z\), \(R\to\sigma_e^2I\) | visual-inertial odometry |
+| \(K = P^-H^\top(HP^-H^\top + R)^{-1}\) | data assimilation (EnKF) in crop models, e.g. APSIM | **BLUP**: \(\hat u = GZ^\top(ZGZ^\top + \sigma_e^2 I)^{-1}(y - X\hat\beta)\) — same Gaussian conditioning with \(P^-\to G\), \(H\to Z\), \(R\to\sigma_e^2I\) (here \(G=\operatorname{Var}(u)\), i.e. \(\sigma_g^2\times\) kinship) | visual-inertial odometry |
 | \(P^- = FPF^\top + Q\) | propagating uncertainty through a linear time step | covariance of a linear combination of breeding values | — |
 | Factor graph, Gauss–Newton on \(J^\top\Sigma^{-1}J\) | sparse FE assembly: each element couples few nodes | mixed-model equations (Henderson) | **bundle adjustment** in COLMAP; 3DGS SLAM |
 | Perturb on the group \(\exp([\xi])\hat T\) | — | — | pose refinement in NeRF/3DGS (M2) |
 | NIS consistency check | residual-based error estimators | cross-validation of predictive accuracy | reprojection-error histograms |
 
 !!! tip "Same formula, three names"
-    Kalman update, BLUP and Gaussian-process regression all compute \(\mathbb E[x\mid z] = \mu_x + \Sigma_{xz}\Sigma_{zz}^{-1}(z - \mu_z)\). In GBLUP, \(\Sigma_{xz} = G Z^\top\) (kinship × incidence) and \(\Sigma_{zz} = ZGZ^\top + \sigma_e^2 I\). In the EKF, \(\Sigma_{xz} = P^-H^\top\) and \(\Sigma_{zz} = S\).
+    Kalman update, BLUP and Gaussian-process regression all compute \(\mathbb E[x\mid z] = \mu_x + \Sigma_{xz}\Sigma_{zz}^{-1}(z - \mu_z)\). In GBLUP, \(\Sigma_{xz} = G Z^\top\) (covariance of breeding values × incidence) and \(\Sigma_{zz} = ZGZ^\top + \sigma_e^2 I\). In the EKF, \(\Sigma_{xz} = P^-H^\top\) and \(\Sigma_{zz} = S\).
+
+    Units note: here \(G\) is the covariance \(\operatorname{Var}(u)=\sigma_g^2 K_{\text{kin}}\). With a unit-scaled kinship matrix (as in Track E), divide through by \(\sigma_g^2\): \(\hat u = K_{\text{kin}}Z^\top(ZK_{\text{kin}}Z^\top + \lambda^2 I)^{-1}(y-X\hat\beta)\) with \(\lambda^2=\sigma_e^2/\sigma_g^2\).
 
 ## In your robots
 

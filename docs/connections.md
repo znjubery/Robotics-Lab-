@@ -31,7 +31,7 @@ flowchart LR
 | Exponential map | \(R=e^{[\hat\omega]\theta}\) | \(u(t)=e^{-Kt}u_0\) for linear ODE \(\dot u=-Ku\) | — | pose update in SLAM / 3DGS pose refinement | M2 |
 | Twist & screw | \(\dot T=T[\mathcal V_b]\) | velocity field of a rigid region | — | camera motion between frames | M2 |
 | Jacobian | \(\mathcal V=J(\theta)\dot\theta\) | sensitivity \(\partial u/\partial p\) | design matrix \(X\) | reprojection Jacobian | M4 |
-| Damped least-squares IK | \(\Delta\theta=J^\top(JJ^\top+\lambda^2I)^{-1}e\) | Tikhonov-regularized inverse problem | ridge / GBLUP \(\hat\beta=(X^\top X+\lambda I)^{-1}X^\top y\) | Levenberg–Marquardt in BA | M5 |
+| Damped least-squares IK | \(\Delta\theta=J^\top(JJ^\top+\lambda^2I)^{-1}e\) | Tikhonov-regularized inverse problem | ridge / GBLUP \(\hat\beta=(X^\top X+\lambda^2 I)^{-1}X^\top y\) | Levenberg–Marquardt in BA | M5 |
 | Statics duality | \(\tau=J^\top\mathcal F\) | adjoint: \(\nabla_p L=(\partial u/\partial p)^\top\lambda\) | — | backprop through renderer | M4 |
 | Mass matrix | \(M(\theta)\ddot\theta+c+g=\tau\) | \(M\ddot u+Ku=f\) | — | — | M7 |
 | Kalman filter | \(\hat x^+=\hat x+K(y-H\hat x)\) | data assimilation | BLUP is the same Gaussian conditioning | visual-inertial odometry | Track C |
@@ -65,7 +65,7 @@ flowchart LR
 | Quadrotor Newton–Euler | \(m\ddot p=-mge_3+fRe_3,\ J\dot\omega+\omega\times J\omega=\tau\) | rigid-body ODE with RK4 time stepping | — | IMU propagation between frames | Track B |
 | Attitude error on SO(3) | \(e_R=\tfrac12(R_d^\top R-R^\top R_d)^\vee=\sin\theta\,\hat\omega\) | — | — | rotation residual in pose graphs / BA | Track B |
 | Flow needs height for scale | flow \(\approx v/h-\omega\) | — | — | monocular SfM scale ambiguity | Track B |
-| Kalman update = Gaussian conditioning | \(K=P^-H^\top(HP^-H^\top+R)^{-1}\) | EnKF data assimilation (e.g. APSIM LAI, soil moisture) | BLUP \(\hat u=GZ^\top(ZGZ^\top+\sigma_e^2I)^{-1}(y-X\hat\beta)\) | visual-inertial odometry | Track C |
+| Kalman update = Gaussian conditioning | \(K=P^-H^\top(HP^-H^\top+R)^{-1}\) | EnKF data assimilation (e.g. APSIM LAI, soil moisture) | BLUP \(\hat u=GZ^\top(ZGZ^\top+\sigma_e^2I)^{-1}(y-X\hat\beta)\), \(G=\operatorname{Var}(u)\) | visual-inertial odometry | Track C |
 | Covariance propagation | \(P^-=FPF^\top+Q\) | uncertainty through a linear time step | variance of a linear combination | — | Track C |
 | SLAM factor graph | \(\min\sum\lVert r\rVert^2_{\Sigma^{-1}}\), sparse Gauss–Newton | sparse FE assembly | Henderson mixed-model equations | bundle adjustment (COLMAP), 3DGS SLAM | Track C |
 | Behavior cloning | \(\min_\phi\sum\lVert a_t-\mu_\phi(o_t)\rVert^2\) | fitting a surrogate to solver runs | GBLUP regresses phenotype on markers | VGGT regresses poses from images | Track D |
@@ -77,6 +77,9 @@ flowchart LR
 
 !!! tip "The single sentence that ties it together"
     **Damped least-squares IK, ridge-regression GBLUP, Tikhonov inverse problems and Levenberg–Marquardt bundle adjustment are the same equation** — solve \(\min\|Ax-b\|^2+\lambda^2\|x\|^2\). Only the names of \(A\), \(x\), \(b\) change.
+
+!!! note "One λ convention on this page"
+    Every row writes the penalty as \(\lambda^2\lVert x\rVert^2\), so \(\lambda^2=\sigma_e^2/\sigma_\beta^2\) (or \(\sigma_e^2/\sigma_g^2\) with unit-diagonal \(G\)) and filter factors are \(\sigma_i^2/(\sigma_i^2+\lambda^2)\). Genomics papers and LM codes usually write \(\lambda\lVert x\rVert^2\); their \(\lambda\) is our \(\lambda^2\) (M5's own GBLUP table uses that form). Also: \(Z\) is a marker matrix in the M4 row but an incidence matrix in the Track C row; \(G\) is a unit-scaled kinship in M5/Track E but the covariance \(\operatorname{Var}(u)\) in the Track C BLUP row.
 
 ## How to use this page
 

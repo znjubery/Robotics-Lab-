@@ -84,7 +84,7 @@ flowchart LR
   P[Position / velocity PID<br/>100 Hz] -->|desired roll, pitch, thrust| A[Attitude PID<br/>500 Hz]
   A -->|desired body rates| W[Rate PID<br/>500 Hz]
   W -->|f, τ| M[Mixer A⁻¹] --> Mot[4 motors]
-  E[EKF state estimate] -.-> P & A & W
+  E[State estimate<br/>complementary or EKF] -.-> P & A & W
 ```
 
 The rates above are from the [Bitcraze controller docs](https://bitcraze.io/documentation/repository/crazyflie-firmware/master/functional-areas/sensor-to-control/controllers/), which list cascaded PID as the default and also Mellinger, INDI, Brescianini and Lee controllers.
@@ -101,7 +101,7 @@ Outer loop: \(a_d = K_p(p_d - p) - K_d\dot p\). Thrust direction: \(\phi_d = -\o
 
 <div class="lab-widget" data-widget="tb-quad"></div>
 
-Try: click a target to the right and watch the drone tilt *first*, then translate (the dashed φ-desired line moves before y). Then drop "Kp attitude" to ~20 so the inner loop is slower than the outer one — it falls. Raise "Kp position" to 20 with max tilt 60° and watch the thrust arrows turn red (saturation).
+Try: click a target to the right and watch the drone tilt *first*, then translate (the dashed φ-desired line moves before y). Then drop "Kp attitude" to ~20 (ratio ≈ 2 in the readout): the tilt lags the outer loop and the drone swings side to side with growing amplitude. Raise "Kp position" to 20 with max tilt 60° and watch the thrust arrows turn red (saturation).
 
 ## Part 4 — Geometric control on SO(3)
 
@@ -115,13 +115,13 @@ e_R = \tfrac12\left(R_d^\top R - R^\top R_d\right)^\vee,\qquad e_\omega = \omega
 \tau = -k_R e_R - k_\omega e_\omega + \omega\times J\omega - J\left([\omega]R^\top R_d\omega_d - R^\top R_d\dot\omega_d\right)
 \]
 
-*Why this form of \(e_R\):* let \(R_d^\top R = e^{[\hat\omega]\theta}\) be the error rotation. By Rodrigues (M2), its skew part is \(\tfrac12(X - X^\top) = \sin\theta\,[\hat\omega]\). So \(e_R = \sin\theta\,\hat\omega\): the M2 **log map**, with \(\theta\) swapped for \(\sin\theta\). Small errors: \(e_R\approx\hat\omega\theta\). It needs no angle chart, so it works for almost all orientations (it is almost-globally stable; \(\theta=180^\circ\) is the single bad spot, same as the M2 log).
+*Why this form of \(e_R\):* let \(R_d^\top R = e^{[\hat\omega]\theta}\) be the error rotation. By Rodrigues (M2), its skew part is \(\tfrac12(X - X^\top) = \sin\theta\,[\hat\omega]\). So \(e_R = \sin\theta\,\hat\omega\): the M2 **log map**, with \(\theta\) swapped for \(\sin\theta\). Small errors: \(e_R\approx\hat\omega\theta\). It needs no angle chart, so it works for almost all orientations (almost-global stability: the bad set is the \(\theta=180^\circ\) rotations, about any axis, where \(\sin\theta=0\) again — the same place the M2 log is ill-defined).
 
 The position loop picks the thrust direction \(z_{b,d}\) from the desired acceleration (Part 2) and the thrust \(f = (m(\ddot p_d + ge_3) + \ldots)\cdot Re_3\) — project the wanted force onto the axis you actually have.
 
 ## Part 5 — Knowing where you are: Flow deck and AI deck
 
-Control is only as good as the state estimate. The Crazyflie fuses sensors in an **extended Kalman filter** (Track C derives it).
+Control is only as good as the state estimate. The Crazyflie's default estimator is a simple complementary filter; when a positioning deck such as the Flow deck is attached, the firmware switches to an **extended Kalman filter** ([Bitcraze estimator docs](https://bitcraze.io/documentation/repository/crazyflie-firmware/master/functional-areas/sensor-to-control/configure_estimator_controller)). Track C derives the EKF.
 
 | Sensor | Measures | Model the EKF uses |
 |---|---|---|
@@ -160,7 +160,7 @@ Under maize or soybean rows the problem changes:
 
 | Where | What this track gives you |
 |---|---|
-| **Crazyflie 2.x** | Default stack is the 3-level cascade above with an EKF. Switch controllers via the `stabilizer.controller` parameter to compare PID vs Mellinger vs Lee on the same trajectory. |
+| **Crazyflie 2.x** | Default stack is the 3-level cascade above (EKF once a Flow or other positioning deck is fitted). Switch controllers via the `stabilizer.controller` parameter to compare PID vs Mellinger vs Lee on the same trajectory. |
 | **Crazyflie + Flow deck** | Indoor hover without external tracking; scale from ToF. Test over a soybean tray to see the flow bias. |
 | **Crazyflie + AI deck** | Run a small CNN on GAP8 for row/gap detection, or stream images to a PC for SfM / NeRF of a potted plant. |
 | **Under-canopy drone (planned)** | Same equations, larger \(m, J\). Mixer and tilt limits decide how tight a row gap you can fly. Downwash and PAR mounting are design choices, not afterthoughts. |
@@ -170,7 +170,7 @@ Under maize or soybean rows the problem changes:
 
 - **Under-canopy autonomy without GNSS.** A lightweight camera-based drone flew autonomously below a boreal forest canopy and estimated tree diameter with about 3–4 cm error ([Karjalainen et al., 2025](https://arxiv.org/abs/2501.12073v3)); earlier large-scale under-canopy semantic SLAM flights came from UPenn ([Liu et al.](https://arxiv.org/pdf/2109.06479)).
 - **Nano-drones for agriculture.** A Crazyflie 2.1 with a GAP9 shield and 8×8 ToF runs a pest detector at 6.8 fps on 33 mW, in a simulated 25-drone vineyard survey ([Crupi et al., 2025](https://arxiv.org/pdf/2502.14455)). A survey of nano-scale navigation covers the compute and sensing limits ([arXiv 2601.13252](https://arxiv.org/pdf/2601.13252)).
-- **Controllers on tiny drones.** Mellinger's trajectory-tracking controller and its analysis on the Crazyflie ([Luis & Le Ny, 2016](https://arxiv.org/pdf/1608.05786)); the Crazyflie firmware now ships PID, Mellinger, INDI, Brescianini and Lee options ([Bitcraze docs](https://bitcraze.io/documentation/repository/crazyflie-firmware/master/functional-areas/sensor-to-control/controllers/)).
+- **Controllers on tiny drones.** A cascaded-PID vs linear-quadratic trajectory tracker designed and compared on the Crazyflie 2.0 ([Luis & Le Ny, 2016](https://arxiv.org/pdf/1608.05786)); the Crazyflie firmware now ships PID, Mellinger, INDI, Brescianini and Lee options ([Bitcraze docs](https://bitcraze.io/documentation/repository/crazyflie-firmware/master/functional-areas/sensor-to-control/controllers/)).
 - **Geometric control** on \(\SE(3)\) (Lee, Leok & McClamroch, 2010) and **minimum-snap flatness** planning (Mellinger & Kumar, 2011) remain the reference designs that learned controllers are compared to.
 
 ## Challenges

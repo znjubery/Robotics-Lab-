@@ -6,12 +6,14 @@ Interactive companion to **Lynch & Park, *Modern Robotics: Mechanics, Planning, 
 
 ## Contents
 
-| Part | Status |
+| Part | Pages |
 |---|---|
-| Roadmap, symbols, math-bridges table, glossary | ✅ |
-| M1 · Configuration space (Ch 2) — C-space/C-obstacle widget, Grübler calculator | ✅ |
-| M2 · Rigid-body motions (Ch 3) — Rodrigues, non-commuting rotations, screw-motion widgets | 🟡 in review |
-| M3–M12 (Ch 4–13), Tracks B–E (aerial, rover, physical AI, estimation) | planned |
+| Shared | Roadmap, Symbols, Math bridges (~50 cross-lab rows), Words (~170 terms) |
+| Part A · Lynch & Park | M1 C-space · M2 Rigid motions · M3 Forward kinematics · M4 Jacobian & statics · M5 Inverse kinematics · M6 Closed chains · M7 Dynamics · M8 Trajectories · M9 Motion planning · M10 Control · M11 Grasping · M12 Wheeled robots |
+| Tracks | B Aerial (Crazyflie) · C Rover estimation & SLAM · D Physical AI (SO-ARM101 + LeRobot) · E Learning & differentiable glue |
+| Review | Step 1 and Step 2 review pages (Claude first pass + my checklist) |
+
+Every page: hook → one everyday analogy → derivations → live widget → math bridges to DiffSim/FVEM/Genomics/3D vision → in my robots → current research (linked) → challenges → next five years → 3 self-checks → one-line version. 20 widgets, all computed in the browser.
 
 ## Run locally
 
@@ -30,9 +32,11 @@ One-time setup: **Settings → Pages → Source: GitHub Actions**.
 ```
 docs/
   index.md  roadmap.md  symbols.md  connections.md  words.md
-  m01-configuration-space.md  m02-rigid-body-motions.md
-  review/step1-review.md          # Claude first-pass + my review checklist
-  javascripts/lab.js              # all widgets + self-checks (no dependencies)
+  m01…m12-*.md  t-b/t-c/t-d/t-e-*.md
+  review/step1-review.md  review/step2-review.md
+  javascripts/lab.js              # shared helpers, M1–M2 widgets, self-checks, Lab.register()
+  javascripts/widgets/<id>.js     # one widget file per module/track
   stylesheets/lab.css
 SESSION.md                        # where we left off
+AUTHORING.md                      # page template + widget API for new modules
 ```

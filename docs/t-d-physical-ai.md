@@ -81,7 +81,7 @@ Try: start with both boxes off — red rollouts either drift out or freeze where
     More demos from the *same* start region add points where the policy already works. Slide **demos N** from 12 to 40 in the widget: success barely moves. DAgger adds points *where the learner fails*, so one or two rounds beat tripling the data. It is the same lesson as active learning and optimal design of experiments: sample where your model is uncertain.
 
 ??? warning "Chunking is open loop"
-    For \(k\) steps the robot ignores its cameras. With 50 Hz control and \(k = 50\) (the π0 / π0.5 default) that is one second blind. Fine for folding a towel, risky near a swaying maize leaf. Real systems re-plan before the chunk ends and blend chunks.
+    For \(k\) steps the robot ignores its cameras. π0 predicts 50-step chunks; at 50 Hz it executes 25 of them (0.5 s blind) before re-planning — executing all 50 would be a full second. Fine for folding a towel, risky near a swaying maize leaf. Real systems re-plan before the chunk ends and blend chunks.
 
 ## Part 3 — Many right answers: diffusion and flow policies
 
@@ -99,7 +99,7 @@ The network \(\varepsilon_\phi\) is trained to predict the noise that was added 
 \mathcal L(\phi) = \mathbb E_{k,\varepsilon}\,\big\lVert \varepsilon - \varepsilon_\phi(o,\ a^0 + \sigma_k\varepsilon,\ k)\big\rVert^2
 \]
 
-*Why this move:* predicting noise is again a least-squares regression, but its result \(\varepsilon_\phi\) is (up to scale) the **score** \(\nabla_a \log p(a\mid o)\). Each denoising step is a small gradient step uphill on the action density — so the chain lands on *one* mode (left or right), never the average.
+*Why this move:* predicting noise is again a least-squares regression, but its result \(\varepsilon_\phi\) is (up to a factor \(-\sigma_k\)) the **score** \(\nabla_a \log p(a\mid o)\). Each denoising step is a small gradient step uphill on the action density — so the chain typically lands on *one* mode (left or right), not the average.
 
 **Flow matching** (used in π0, π0.5, SmolVLA and GR00T N1's action module) learns a velocity field \(v_\phi(o, a, s)\) and integrates the ODE \(\dot a = v_\phi\) from noise at \(s = 0\) to an action at \(s = 1\) in ~10 Euler steps. Same idea, fewer steps.
 
@@ -125,12 +125,12 @@ flowchart LR
 | Model | From | Action head | What is new |
 |---|---|---|---|
 | RT-2 (2023) | Google DeepMind | discrete tokens | web VLM fine-tuned to output actions as text tokens |
-| OpenVLA (2024) | Stanford et al. | discrete tokens | open 7B model, trained on 970k Open X-Embodiment episodes |
+| OpenVLA (2024) | Stanford et al. | discrete tokens | open 7B model, trained on 970k Open X-Embodiment robot demonstrations |
 | π0 (2024) | Physical Intelligence | flow matching | VLM + "action expert," 50-step chunks at 50 Hz, many robot types |
 | π0.5 (2025) | Physical Intelligence | flow matching + text sub-tasks | co-training on web + multi-robot data; cleans homes it never saw |
 | π\*0.6 (2025) | Physical Intelligence | flow matching | learns from its own experience with RL (Recap) |
 | GR00T N1 (2025) | NVIDIA | diffusion transformer (flow-matching loss) | "System 2" VLM plans, "System 1" acts; humanoids; real + sim + human video |
-| SmolVLA (2025) | Hugging Face / LeRobot | flow matching | small, runs on consumer GPUs; trained on community LeRobot datasets incl. SO-100/101 |
+| SmolVLA (2025) | Hugging Face / LeRobot | flow matching | small, runs on consumer GPUs; trained on community LeRobot datasets (mostly SO-100), evaluated on SO-100/101 |
 
 *Why this move:* the VLM is a huge, already-trained **prior**. Fine-tuning on 50 demos is like ridge regression that shrinks toward a good prior instead of toward zero (Track E).
 
@@ -191,7 +191,7 @@ LeRobot uses a **leader–follower** pair: you move a passive leader arm by hand
 
 ## Current research
 
-- **Generalist VLAs.** [π0](https://arxiv.org/pdf/2410.24164) introduced a flow-matching action expert on a VLM; [π0.5](https://www.pi.website/blog/pi05) co-trains on web + multi-robot data and reports 94% out-of-distribution success in unseen homes (vs 74% without web data); [π\*0.6 with Recap](https://pi.website/blog/pistar06) adds RL from the robot's own experience. Open baselines: [OpenVLA](https://arxiv.org/abs/2406.09246v3) and NVIDIA's [GR00T N1](https://arxiv.org/pdf/2503.14734).
+- **Generalist VLAs.** [π0](https://arxiv.org/pdf/2410.24164) introduced a flow-matching action expert on a VLM; [π0.5](https://www.pi.website/blog/pi05) co-trains on web + multi-robot data; on an out-of-distribution object task in homes not seen in training it reports 94% success vs 74% without web data; [π\*0.6 with Recap](https://pi.website/blog/pistar06) adds RL from the robot's own experience. Open baselines: [OpenVLA](https://arxiv.org/abs/2406.09246v3) and NVIDIA's [GR00T N1](https://arxiv.org/pdf/2503.14734).
 - **Small, open VLAs for low-cost arms.** [SmolVLA](https://arxiv.org/abs/2506.01844) trains on 481 community LeRobot datasets (22.9K episodes) and adds asynchronous inference (predict the next chunk while executing the current one). The LeRobot [real-robot guide](https://huggingface.co/docs/lerobot/getting_started_real_world_robot) covers SO-101 teleop, recording and training.
 - **VLAs in the field.** [HarvestFlex](https://arxiv.org/html/2603.05982v1) fine-tunes π0, π0.5 and WALL-OSS for greenhouse strawberry picking from 3.71 h of VR teleop; best was π0.5 at 74% success and 32.6 s/pick — while a classic modular pipeline still did 89% at 8.3 s. Honest benchmark for ag.
 - **Sim2real for plants.** [Find the Fruit](https://arxiv.org/html/2505.16547v3) trains an RL policy on a finite-element plant model to push leaves aside and reveal fruit, then deploys zero-shot: 96.1% in sim, up to 86.7% on real plants, 28.9% on a stiff bushy plant.
@@ -199,7 +199,7 @@ LeRobot uses a **leader–follower** pair: you move a passive leader arm by hand
 
 ## Challenges
 
-1. **Data cost.** ~50–200 demos per task at ~30–60 s each is 1–3 hours of a person's time per task; π0.5 used ~400 h of mobile-manipulation data. Ag tasks are seasonal — you can't re-record a V12 maize plant in December.
+1. **Data cost.** ~50–200 demos per task at ~30–60 s each is roughly 0.5–3 hours of a person's time per task; π0.5's mobile-manipulation subset alone is ~400 h. Ag tasks are seasonal — you can't re-record a V12 maize plant in December.
 2. **Speed vs accuracy.** HarvestFlex: VLA 32.6 s/pick vs modular 8.3 s. A 7B token VLA runs at a few Hz; flow heads + async inference help, but edge GPUs (Jetson) still limit model size.
 3. **Evaluation is noisy.** 50 real trials give a 95% interval of about ±13 percentage points at 70% success. Comparisons between policies need many more trials or world-model evaluators.
 4. **Deformable, variable plants.** Leaves move, stalks bend, lighting changes; sim plants miss stiffness and damage (Find the Fruit: 86.7% → 28.9% on a stiffer plant).

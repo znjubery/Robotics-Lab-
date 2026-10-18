@@ -29,7 +29,7 @@ One symbol, one meaning, across every module. Notation follows Lynch & Park so y
 | \(\sigma_i\) | singular values of \(J\) (ellipse semi-axes) | scalars | \(\sqrt{\text{eigenvalues}}\) of \(G\) / \(K\) |
 | \(\kappa\) | condition number \(\sigma_{\max}/\sigma_{\min}\) | scalar | condition number of \(X^\top X\) or \(K\) |
 | \(J^\dagger\) | pseudoinverse \(J^\top(JJ^\top)^{-1}\) | \(n\times m\) | minimum-norm least-squares solution |
-| \(\lambda\) (M5) | damping / regularization weight | scalar | ridge \(\lambda=\sigma_e^2/\sigma_\beta^2\); Tikhonov \(\alpha\); LM damping |
+| \(\lambda\) (M5) | damping / regularization weight; penalty is \(\lambda^2\lVert\Delta\theta\rVert^2\) | scalar | ridge papers write \(\lambda_{\text{ridge}}=\lambda^2=\sigma_e^2/\sigma_\beta^2\); Tikhonov \(\alpha\); LM damping |
 | \(e\) | task-space error (twist or position) | \(m\) | residual \(y-X\beta\) |
 | \(T_{sd}\) | desired end-effector pose | \(4\times4\) | target camera pose |
 | \(g(\theta)\) | loop-closure constraint residual | \(k\) | constraint \(Bu-\bar u\) in FEM |
@@ -70,14 +70,14 @@ One symbol, one meaning, across every module. Notation follows Lynch & Park so y
 | \(\hat x,\ P\) | state estimate and its covariance | \(n,\ n\times n\) | posterior mean / PEV in BLUP |
 | \(Q,\ R\) (Track C) | process and measurement noise covariances (\(R\) is not a rotation here) | \(n\times n,\ m\times m\) | \(\sigma_e^2 I\) residual variance |
 | \(K\) (Track C) | Kalman gain | \(n\times m\) | BLUP shrinkage weights |
-| \(H\) | measurement Jacobian | \(m\times n\) | incidence matrix \(Z\) |
+| \(H\) (Track C) | measurement Jacobian (not M6's constraint Jacobian \(H(\theta)\)) | \(m\times n\) | incidence matrix \(Z\) |
 | \(\xi\) | pose perturbation in the Lie algebra | \(3\) (SE(2)) or \(6\) | — |
 | \(\pi_\phi(a\mid o)\) | policy with weights \(\phi\) | — | predictive model \(p(y\mid x)\) |
 | \(o_t,\ a_t\) | observation, action at step \(t\) | images + \(n\); \(n\) or 7 | input \(x\), label \(y\) |
 | \(k\) | action-chunk length | scalar | — |
 | \(A,\ x,\ b\) | linearized model, unknowns, data misfit | \(m\times n,\ n,\ m\) | \(X,\ \beta,\ y\) in GBLUP |
-| \(\lambda\) | regularization / damping strength | scalar | \(\sqrt{\sigma_e^2/\sigma_g^2}\) |
-| \(\sigma_i,\ f_i\) | singular values, filter factors | \(\min(m,n)\) | eigenvalues of \(G\) |
+| \(\lambda\) (Track E) | regularization / damping strength, same as M5 (penalty \(\lambda^2\lVert x\rVert^2\)) | scalar | \(\lambda=\sqrt{\sigma_e^2/\sigma_\beta^2}\) (\(=\sqrt{\sigma_e^2/\sigma_g^2}\) with unit-diagonal \(G\)) |
+| \(\sigma_i,\ f_i\) (Track E) | singular values, filter factors (\(f_i\) is not a thrust or a joint freedom here) | \(\min(m,n)\) | \(\sigma_i^2\) = eigenvalues of \(G=XX^\top\) |
 | \(Y(\theta,\dot\theta,\ddot\theta)\) | dynamics regressor | \(n\times10n\) | design matrix |
 | \(\pi\) (system ID) | stacked inertial parameters (10 per link) | \(10n\) | effects vector \(\beta\) |
 
@@ -85,3 +85,14 @@ One symbol, one meaning, across every module. Notation follows Lynch & Park so y
 
 !!! note "Name clash"
     Grübler uses \(J\) for *number of joints*; everywhere else \(J\) is the Jacobian. The book does the same. Context always tells you which.
+
+!!! note "More letters that do several jobs (read the module tag)"
+    - \(J\): Jacobian; Grübler joint count (M1); body inertia (Track B); expected cost \(J(\pi)\) (Track D).
+    - \(\pi\): inertial parameters (M7, Track E — same meaning, listed twice) vs the policy \(\pi_\phi(a\mid o)\) (Track D).
+    - \(\lambda\): damping (M5, Track E); Lagrange multipliers (M6); eigenvalues \(\lambda_i\) of \(JJ^\top\) (M4) or of \(P\) (Track C ellipse); adjoint variable \(\lambda_{\text{adj}}\) (Track E); contact force \(\lambda_n\) (M11).
+    - \(K\): Kalman gain (Track C); gains \(K_p,K_d\) (M10); stiffness (impedance, FEM); number of samples or denoising steps (Track E, Track D).
+    - \(H\): constraint Jacobian (M6); measurement Jacobian (Track C); hat matrix \(\mathrm{tr}(H)\) (Track E); Hermite basis \(H_1\ldots H_4\) (M8).
+    - \(R\): rotation vs measurement-noise covariance (Track C). \(M\): mass matrix vs home pose (M3) vs \(M_d\). \(T\): pose vs duration vs episode horizon (Track D).
+    - \(f_i\): joint freedoms (M1), rotor thrusts (Track B), filter factors (Track E). \(G\): kinship/GRM vs \(G(q)\) (M12) vs input Jacobian \(G=\partial f/\partial u\) (Track C).
+    - \(\phi\): heading or roll angle (Tracks B, C) vs network weights (Track D). \(\xi\): Lie-algebra perturbation (Track C) vs simulator parameters (Track D). \(\varepsilon\): grasp quality (M11) vs per-step error rate or diffusion noise (Track D).
+    - \(g\): gravity, \(g(\theta)\) constraint (M6), cost-to-come \(g(n)\) (M9), contact gap (M11). \(h\): height (Track B), heuristic (M9), pitch (M2), measurement model \(h(x)\) (Track C).

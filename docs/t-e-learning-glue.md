@@ -73,7 +73,7 @@ x_\lambda = \sum_i \underbrace{\frac{\sigma_i^2}{\sigma_i^2+\lambda^2}}_{f_i\ \t
 
 <div class="lab-widget" data-widget="te-ridge"></div>
 
-Try: on **IK step**, drag log λ from −3 to 1 and watch the amber arm go from a wild one-step jump to a short safe step — while the 15-step green arm still reaches. Switch to **GBLUP / ridge**: the blue test curve is lowest near the green line λ = σₑ/σ_b = 1. Switch to **LM**: tiny λ diverges, mid λ converges. The L-curve and filter-factor bars behave the same in all three.
+Try: on **IK step**, drag log λ from −3 to 0 and watch the amber arm go from a wild one-step jump to a short safe step — while the 15-step green arm still reaches (push past 0 and even 15 steps fall short). Switch to **GBLUP / ridge**: the blue test curve is lowest near the green line λ = σₑ/σ_b = 1. Switch to **LM**: tiny λ diverges, mid λ converges. The L-curve and filter-factor bars behave the same in all three.
 
 ??? question "What if we didn't regularize at all (λ = 0)?"
     In GBLUP with 200 markers and 40 lines, \(X^\top X\) has rank ≤ 40: infinitely many \(\beta\) fit the training data *exactly* (train MSE = 0 in the widget) and test error is worst. In IK, near a singularity the smallest σ is ≈0.1 in the widget, so the 0.95 tip error asks for a ≈137° joint jump (2.39 rad). In LM, λ = 0 is pure Gauss–Newton, which can overshoot from a bad start. Same disease, three symptoms.
@@ -92,7 +92,7 @@ Then \(-\log p(x\mid b) = \tfrac{1}{2\sigma_e^2}\lVert Ax-b\rVert^2 + \tfrac{1}{
 \lambda^2 = \frac{\sigma_e^2}{\sigma_x^2},\qquad \hat x_\text{MAP} = x_\lambda,\qquad \operatorname{Cov}(x\mid b) = \sigma_e^2\,(A^\top A + \lambda^2 I)^{-1}
 \]
 
-*Why this move:* the regularizer is not a hack — it is your belief about \(x\) before data. In GBLUP, \(\lambda^2 = \sigma_e^2/\sigma_\beta^2\) comes from heritability; REML estimates it. The matrix you invert is the **posterior precision**; its inverse is the error bar. LM's damping, IK's damping and the Kalman gain are the same balance of "trust data" vs "trust prior."
+*Why this move:* the regularizer is not a hack — it is your belief about \(x\) before data. In GBLUP, \(\lambda^2 = \sigma_e^2/\sigma_\beta^2\) comes from heritability; REML estimates it. (It equals \(\sigma_e^2/\sigma_g^2\) when markers are scaled so \(G = XX^\top\) has unit diagonal, as in the widget.) The matrix you invert is the **posterior precision**; its inverse is the error bar. LM's damping, IK's damping and the Kalman gain are the same balance of "trust data" vs "trust prior."
 
 **Kalman = BLUP.** With prior \(x\sim\mathcal N(\hat x, P)\) and measurement \(y = Hx + v\), \(v\sim\mathcal N(0,R)\):
 
@@ -123,7 +123,7 @@ Note \(A^\top b\) on the right side of every normal equation: that term *is* one
 
 ## Part 4 — System identification of a robot is ridge regression
 
-The rigid-body dynamics of any open chain are **linear in the inertial parameters**. For each link \(i\), stack 10 numbers: mass \(m_i\), first moments \(m_i c_i\) (3), and 6 inertia entries. Then
+The rigid-body dynamics of any open chain are **linear in the inertial parameters**. For each link \(i\), stack 10 numbers: mass \(m_i\), first moments \(m_i c_i\) (3), and 6 inertia entries (taken about the link-frame origin, not the CoM — that is what keeps them linear). Then
 
 \[
 \tau = M(\theta)\ddot\theta + c(\theta,\dot\theta) + g(\theta) = Y(\theta,\dot\theta,\ddot\theta)\,\pi,\qquad \pi\in\R^{10n}
@@ -154,7 +154,7 @@ The same lock, bigger doors:
 
 ```mermaid
 flowchart LR
-  D[Measurements b] --> U[Update: ridge / Kalman<br/>x = A^T AA^T+λ²I ⁻¹ b]
+  D[Measurements b] --> U["Update: ridge / Kalman<br/>x = Aᵀ(AAᵀ+λ²I)⁻¹b"]
   M[Model: robot · PDE · GBLUP] --> A[Linearize: A = ∂pred/∂x]
   A --> U
   U --> M
@@ -185,7 +185,7 @@ flowchart LR
 
 ## Current research
 
-- **Bayesian robot identification.** [Reiners et al., 2025](https://arxiv.org/abs/2506.19350) estimate industrial-robot inertial and friction parameters with Bayesian statistics and prior knowledge, giving physically plausible values with confidence intervals — Part 2 + Part 4 in practice.
+- **Bayesian robot identification.** [Reiners et al., 2025](https://arxiv.org/abs/2506.19350) estimate an industrial robot's dynamic (inertial) parameters with Bayesian statistics and prior knowledge, giving physically plausible values with confidence intervals — Part 2 + Part 4 in practice.
 - **Physical consistency.** [Wensing et al.](https://arxiv.org/pdf/1701.04395) give linear-matrix-inequality constraints that keep identified inertias physically real, while staying convex.
 - **Differentiable simulation for system ID.** [Chen et al., 2025](https://arxiv.org/html/2410.03920v2) recover object mass and elastic moduli from robot joint encoders alone by fitting a differentiable robot–object simulation; [RigPI](https://arxiv.org/pdf/2606.25212) seeds differentiable-simulation identification with a vision-language model's guess.
 - **Operator learning for inverse problems.** [DeepONet-accelerated Bayesian inversion](https://arxiv.org/pdf/2512.20268) and [generalizable neural operators for inverse problems](https://arxiv.org/pdf/2512.18120) replace the PDE solve inside the inversion loop with a learned surrogate.
