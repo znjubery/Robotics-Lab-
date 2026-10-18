@@ -107,7 +107,7 @@ For a general path with full dynamics (M7), substitute \(\theta(s)\) into \(\tau
 
 Each torque limit \(\tau_{i,\min}\le\tau_i\le\tau_{i,\max}\) becomes a bound \(L(s,\dot s)\le\ddot s\le U(s,\dot s)\). In the **phase plane** \((s,\dot s)\):
 
-- Where \(L > U\), no feasible motion: the **velocity limit curve**.
+- Where \(L > U\), no feasible motion; the boundary of that region (\(L = U\)) is the **velocity limit curve**.
 - The fastest trajectory stays as high as possible under that curve, switching between max acceleration \(U\) and max deceleration \(L\) (bang–bang). The trapezoid is the special case with constant bounds.
 
 Classic algorithm: integrate forward with \(U\), backward from the end with \(L\), find the switch points. Modern solvers (TOPP-RA) instead sweep \(s\) in a grid and solve a small linear program per step — robust and fast ([Pham & Pham, 2018](https://arxiv.org/pdf/1707.07239)).

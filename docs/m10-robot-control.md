@@ -137,7 +137,7 @@ Plug in, cancel \(h\), and multiply by \(M^{-1}\) (always invertible):
 \ddot e + K_d\dot e + K_p e + K_i\!\int e\,dt = 0
 \]
 
-*Why this move:* the model turns a coupled, nonlinear, configuration-dependent system into \(n\) **independent** copies of Part 2's ODE. Pick \(K_p = \omega_n^2 I\), \(K_d = 2\zeta\omega_n I\) once, and every joint behaves the same in every pose.
+*Why this move:* the model turns a coupled, nonlinear, configuration-dependent system into \(n\) **independent** copies of Part 2's ODE. Pick \(K_p = \omega_n^2\,\mathbb 1\), \(K_d = 2\zeta\omega_n\,\mathbb 1\) (identity matrices — the inertia is already inside \(M\)) once, and every joint behaves the same in every pose.
 
 - \(M\ddot\theta_d + h\) is the **feedforward** (what the model says is needed).
 - \(M(K_p e + K_d\dot e)\) is the **feedback** (fixes what the model got wrong).
@@ -201,7 +201,7 @@ Try: set the target 5 cm *past* the wall. Steady force ≈ K·Δx, whatever the 
 ## Current research
 
 - **Learned compliance.** Diffusion models that output stiffness and damping, not just positions, for contact-rich tasks on a KUKA iiwa ([Geiger, Asfour, Hogan, Lachner, 2025](https://arxiv.org/abs/2509.19696v2)); compliant diffusion policies learned from demonstrations ([arXiv 2410.19235](https://arxiv.org/html/2410.19235v1)).
-- **Admittance control in the field.** A vineyard harvesting robot embeds its level of autonomy in a **variable admittance** controller and switches to zero-stiffness hand guiding when leaves hide the peduncle ([Palmieri et al., IROS 2024, CANOPIES](https://iris.unicas.it/bitstream/11580/113404/1/canopies_iros24.pdf)).
+- **Admittance control in the field.** A vineyard harvesting robot embeds its level of autonomy in a **variable admittance** controller and switches to zero-stiffness hand guiding when perception cannot locate the peduncle — in their test, because leaves hide it ([Palmieri et al., IROS 2024, CANOPIES](https://iris.unicas.it/bitstream/11580/113404/1/canopies_iros24.pdf)).
 - **Contact-aware canopy reaching.** RICE uses tactile feedback to trade off pushing through foliage against avoiding stiff branches ([Parayil et al., 2025](https://arxiv.org/html/2506.10383v1)).
 - **Automated PID tuning.** Meta-learning initializes fuzzy gain-scheduled PID gains from robot physical features, then RL refines them, tested on a 9-DOF arm and a 12-DOF quadruped ([Wu & Yu, arXiv 2511.06500](https://arxiv.org/abs/2511.06500v2)).
 

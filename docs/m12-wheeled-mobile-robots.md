@@ -107,7 +107,7 @@ The rover has only two allowed directions, \(g_1\) and \(g_2\). Can it reach a p
 
 At \(\phi = 0\) that is \((0, 0, -1)\): **pure sideways motion** — the direction the Pfaffian constraint forbids.
 
-*Why this move:* \(\det[g_1\ g_2\ [g_1,g_2]] = -1 \ne 0\) for every \(\phi\), so the three vectors span all of \(\R^3\). By **Chow's theorem**, the rover is (small-time locally) controllable: every nearby pose is reachable. That is also why the constraint is *nonholonomic*: if it were holonomic, brackets would stay inside the allowed directions and some poses would be unreachable.
+*Why this move:* \(\det[g_1\ g_2\ [g_1,g_2]] = 1 \ne 0\) for every \(\phi\), so the three vectors span all of \(\R^3\). By **Chow's theorem**, the rover is (small-time locally) controllable: every nearby pose is reachable. That is also why the constraint is *nonholonomic*: if it were holonomic, brackets would stay inside the allowed directions and some poses would be unreachable.
 
 **Step 3 — the price.** Each wiggle of size \(\varepsilon\) buys only \(\varepsilon^2\) of sideways motion. With \(\varepsilon = 0.3\): 0.09 per cycle, so 4 cycles ≈ 0.36 (the widget shows −0.355; the \(O(\varepsilon^3)\) leftovers also add a little forward drift).
 
@@ -144,7 +144,7 @@ v = v_d\cos\phi_e + k_1 x_e,\qquad \omega = \omega_d + v_d\left(k_2\, y_e + k_3\
 |---|---|---|---|
 | exact arc \(T_{k+1}=T_k e^{[\mathcal V_b]\Delta t}\) vs Euler | exponential / geometric integrators vs forward Euler; global error \(O(\Delta t)\) for Euler | — | camera pose propagation between frames; VO keyframe chaining |
 | odometry drift = error accumulates step by step | error accumulation in explicit time stepping; stability & consistency | — | drift in SfM / VGGT trajectories without loop closure or bundle adjustment |
-| Lie bracket \([g_1,g_2]\) ≠ 0 | commutator / operator-splitting error (Strang splitting is \(O(\Delta t^2)\) because of it) | — | non-commuting rotations (M2) in pose updates |
+| Lie bracket \([g_1,g_2]\) ≠ 0 | commutator = operator-splitting error (Lie splitting is \(O(\Delta t)\) because of it; symmetric Strang splitting cancels the leading term → \(O(\Delta t^2)\)) | — | non-commuting rotations (M2) in pose updates |
 | Pfaffian \(A(q)\dot q=0\) | velocity constraints by Lagrange multipliers (incompressibility \(\nabla\cdot u=0\)) | linear constraints on effects | epipolar constraint \(x_2^\top E x_1 = 0\) on camera motion |
 | slip / effective axle width estimated online | parameter identification / inverse problems | random effects estimated from data (BLUP) | self-calibration of intrinsics |
 
@@ -161,8 +161,8 @@ v = v_d\cos\phi_e + k_1 x_e,\qquad \omega = \omega_d + v_d\left(k_2\, y_e + k_3\
 ## Current research
 
 - **Low-cost under-canopy row following.** CropFollow++ uses learned semantic keypoints from a camera to drive cover-crop robots under maize canopy; about 25 km of autonomous driving, 767 m on average between interventions ([Sivakumar et al., 2024](https://arxiv.org/html/2404.17718v1)).
-- **End-to-end learned row navigation.** A reinforcement-learning policy trained in simulation maps raw LiDAR scans to control commands in crop rows; it works on straight rows and degrades as curvature grows ([Mineiro, Affonso & Becker, 2025](https://arxiv.org/abs/2509.18608v2)).
-- **Slip-aware models for skid/tracked robots.** Pseudo-kinematic models fit to terrain-interaction simulation support Lyapunov tracking control and planning for tracked vehicles ([Focchia et al., 2024](https://arxiv.org/pdf/2409.18641)).
+- **End-to-end learned row navigation.** A reinforcement-learning policy trained in simulation maps raw LiDAR scans to control commands in crop rows; in simulation it succeeds on straight rows and degrades as curvature grows ([Mineiro, Affonso & Becker, 2025](https://arxiv.org/abs/2509.18608v2)).
+- **Slip-aware models for skid/tracked robots.** Pseudo-kinematic models fit to terrain-interaction simulation support Lyapunov tracking control and planning for tracked vehicles ([Focchi et al., 2024](https://arxiv.org/pdf/2409.18641)).
 - **Learned mobile manipulation.** HoMeR combines imitation learning with whole-body control for in-the-wild mobile manipulation ([arXiv 2506.01185](https://arxiv.org/pdf/2506.01185)); BEHAVIOR Robot Suite targets real-world whole-body household tasks ([Jiang et al., CoRL 2025](https://arxiv.org/html/2503.05652v1)).
 
 ## Challenges

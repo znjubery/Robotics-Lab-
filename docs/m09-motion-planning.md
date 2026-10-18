@@ -159,17 +159,17 @@ Sampling gives a feasible but ugly path. **Optimization** improves it. Discretiz
 \min_{\xi}\ \underbrace{\sum_{k}\lVert q_{k+1} - 2q_k + q_{k-1}\rVert^2}_{\text{smoothness}} \;+\; \lambda\,\underbrace{\sum_k c_{\text{obs}}(q_k)}_{\text{collision cost from SDF}}
 \]
 
-- **CHOMP** (Ratliff et al., 2009): gradient descent on this cost, preconditioned by the smoothness matrix \(A\) (a second-difference, i.e. 1D discrete Laplacian), so updates spread smoothly along the path.
+- **CHOMP** (Ratliff et al., 2009): gradient descent on this cost, preconditioned by the smoothness matrix \(A\), so updates spread smoothly along the path. (Original CHOMP penalizes first differences, giving \(A\) = the 1D discrete Laplacian; with the second differences written above, \(A = D^\top D\) is the discrete bi-Laplacian.)
 - **TrajOpt** (Schulman et al., 2013): sequential convex optimization; collisions become linearized **constraints** \(d(q_k)\ge d_{\text{safe}}\) with a trust region.
 
-*Why this move:* the smoothness term is exactly the 1D finite-difference stiffness matrix. The optimizer is a small PDE-constrained problem: "find the stiffest-straight string that stays out of the obstacle field".
+*Why this move:* the smoothness term is a 1D finite-difference stiffness matrix — the Laplacian (a taut string) for first differences, the bi-Laplacian (an Euler–Bernoulli beam) for the second differences above. The optimizer is a small PDE-constrained problem: "find the stiffest-straight string that stays out of the obstacle field".
 
 **Shortcut smoothing** (the checkbox in the widget) is the cheap version: pick two random waypoints; if the straight segment between them is free, delete everything in between. Repeat. Then hand the shortened path to M8 to add timing.
 
 ### The modern twists
 
 - **GPU-parallel planning.** cuRobo runs many collision-free IK seeds and many trajectory optimizations in parallel on a GPU against signed-distance fields, reporting ~50 ms average motion generation (60× faster than prior trajectory optimizers) and ~20 ms for its geometric planner ([Sundaralingam et al., 2023](https://arxiv.org/abs/2310.17274)).
-- **Graphs of Convex Sets (GCS).** Cover \(\mathcal C_{\text{free}}\) with convex regions, make them nodes of a graph, and solve "which regions + which smooth curve inside them" as one convex relaxation of a mixed-integer program. It combines A\*-style discrete choice with trajectory optimization ([Marcucci et al., *Science Robotics* 2023](https://groups.csail.mit.edu/robotics-center/public_papers/Marcucci24a.pdf); [MIT News](https://news.mit.edu/2023/new-optimization-framework-robot-motion-planning-1130)).
+- **Graphs of Convex Sets (GCS).** Cover \(\mathcal C_{\text{free}}\) with convex regions, make them nodes of a graph, and solve "which regions + which smooth curve inside them" as one convex relaxation of a mixed-integer program. It combines A\*-style discrete choice with trajectory optimization ([Marcucci et al., *Science Robotics* 2023](https://arxiv.org/abs/2205.04422); [MIT News](https://news.mit.edu/2023/new-optimization-framework-robot-motion-planning-1130)).
 
 ```mermaid
 flowchart LR
@@ -187,9 +187,9 @@ flowchart LR
 
 | Here | DiffSim / FVEM | Genomics-Lab | 3D vision |
 |---|---|---|---|
-| Dijkstra/A\* wavefront \(g(m)=\min(g(n)+c)\) | discrete form of the eikonal equation \(\lVert\nabla T\rVert = 1\); fast-marching solves it on a mesh | — | geodesic distances on point-cloud graphs |
+| Dijkstra/A\* wavefront \(g(m)=\min(g(n)+c)\) | graph analogue of the eikonal equation \(\lVert\nabla T\rVert = 1\); fast marching is its consistent upwind discretization on a mesh (grid Dijkstra carries an octagonal "metrication" error) | — | geodesic distances on point-cloud graphs |
 | Grown obstacles / signed distance \(d(q)\) | SDF of the boundary in the shifted boundary method | — | SDF / occupancy fields (NeuS, TSDF fusion) |
-| Smoothness term \(\sum\lVert q_{k+1}-2q_k+q_{k-1}\rVert^2\) | 1D second-difference = FEM/FD stiffness (Laplacian) matrix | smoothing penalty in random-regression / spline models | trajectory smoothing of camera paths |
+| Smoothness term \(\sum\lVert q_{k+1}-2q_k+q_{k-1}\rVert^2\) | \(D^\top D\) with \(D\) the second difference = 1D bi-Laplacian (beam bending stiffness); first differences give the Laplacian (string) | smoothing penalty in random-regression / spline models | trajectory smoothing of camera paths |
 | Trajectory optimization with collision constraint | PDE-constrained optimization; adjoint gradients | — | bundle adjustment as constrained least squares |
 | RRT/PRM random samples, \(\Pr[\text{fail}]\to0\) | Monte Carlo integration, error \(\sim N^{-1/2}\) | Monte Carlo / MCMC in Bayesian genomic models | RANSAC: random samples to find inliers |
 | Admissible heuristic \(h\le h^\*\) | a-posteriori error *lower bound* | — | — |
@@ -208,7 +208,7 @@ flowchart LR
 ## Current research
 
 - **GPU-parallel motion generation.** cuRobo solves collision-free IK and trajectory optimization in parallel on GPUs, ~50 ms per difficult problem ([arXiv 2310.17274](https://arxiv.org/abs/2310.17274); [curobo.org](https://curobo.org)).
-- **Convex decompositions.** Graphs of Convex Sets turn planning around obstacles into a tight convex relaxation ([Marcucci et al.](https://groups.csail.mit.edu/robotics-center/public_papers/Marcucci24a.pdf)).
+- **Convex decompositions.** Graphs of Convex Sets turn planning around obstacles into a tight convex relaxation ([Marcucci et al.](https://arxiv.org/abs/2205.04422); full treatment in [Marcucci's 2024 MIT thesis](https://groups.csail.mit.edu/robotics-center/public_papers/Marcucci24a.pdf)).
 - **Learned planners.** Diffusion models trained on expert trajectories, guided by collision-cost gradients during denoising, generate diverse collision-free arm motions ([Motion Planning Diffusion, Carvalho et al.](https://arxiv.org/html/2308.01557v2)).
 - **Under-canopy field navigation.** CropNav switches between LiDAR under-canopy row following and GNSS waypoints with collision recovery ([Gasparino et al.](https://arxiv.org/html/2411.10974v1)); LeCropFollow plans in a learned latent space from semantic heatmaps and transfers zero-shot from simulation to corn fields ([Tommaselli et al.](https://arxiv.org/pdf/2606.31941)); aerial-LiDAR maps plus D\* Lite replanning guide ground robots under forest canopy ([de Lima et al.](https://arxiv.org/abs/2404.03911v1)).
 - **Reaching through foliage.** RICE balances pushing through soft leaves against avoiding stiff branches using tactile feedback ([Parayil et al.](https://arxiv.org/html/2506.10383v1)) — leaves treated as *permeable* rather than hard obstacles.

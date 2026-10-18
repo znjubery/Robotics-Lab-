@@ -166,7 +166,10 @@
           (key === "quintic" ? " (smooth start)" : " (jumps from 0: infinite jerk)");
       };
       out.innerHTML = line("cubic", "cubic") + "<br>" + line("quintic", "quintic") + "<br>" + line("trap", "trapezoid") +
-        (P.trap.tr.v * P.trap.tr.v / P.trap.tr.a > 0.999 ? " — <i>triangle: never reaches cruise</i>" : ` — cruise for ${fmt(P.trap.T - 2 * P.trap.tr.ta, 2)} s`);
+        (P.trap.tr.v * P.trap.tr.v / P.trap.tr.a > 0.999 ? " — <i>triangle: never reaches cruise</i>" : ` — cruise for ${fmt(P.trap.T - 2 * P.trap.tr.ta, 2)} s`) +
+        (mode.value === "T" && P.trap.tr.a > a * 1.0001
+          ? `<br><b style="color:${k.red}">Note:</b> s̈max = ${fmt(a, 2)} is too small to finish in T = ${fmt(+Ts.value, 2)} s (needs a·T² ≥ 4), so the trapezoid was raised to s̈ = ${fmt(P.trap.tr.a, 2)}.`
+          : "");
     }
     draw();
   });

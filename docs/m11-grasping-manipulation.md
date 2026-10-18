@@ -101,7 +101,7 @@ A grasp is in **force closure** if the fingers can resist *any* external wrench 
 
 *Why this move:* this says the edge wrenches \(\mathcal F_{ij}\) **positively span** all of wrench space (\(\R^3\) planar, \(\R^6\) spatial).
 
-**Step 1 — cone to hull.** Nonnegative mixes of the \(\mathcal F_{ij}\) fill all of \(\R^n\) exactly when the origin sits **strictly inside** their convex hull. If the origin were on or outside the hull, a separating plane with normal \(c\) would satisfy \(c^\top \mathcal F_{ij} \le 0\) for every edge, and the external wrench \(\mathcal F_{\text{ext}} = c\) could never be balanced.
+**Step 1 — cone to hull.** Nonnegative mixes of the \(\mathcal F_{ij}\) fill all of \(\R^n\) exactly when the origin sits **strictly inside** their convex hull. If the origin were on or outside the hull, a separating plane with normal \(c\) would satisfy \(c^\top \mathcal F_{ij} \le 0\) for every edge, so the fingers could never produce a wrench with \(c^\top\mathcal F > 0\), and the external wrench \(\mathcal F_{\text{ext}} = -c\) could never be balanced.
 
 **Step 2 — test it without an LP.** Build the convex hull of the edge wrenches. For each facet with outward unit normal \(\hat c\) and offset \(d\) (\(\hat c^\top x = d\) on the facet), the origin is inside iff \(d > 0\) for **every** facet.
 
@@ -132,7 +132,7 @@ Try: start with the ellipse, contacts at 10° and 180°, μ = 0.30 → force clo
 g \ge 0,\qquad \lambda_n \ge 0,\qquad g\,\lambda_n = 0
 \]
 
-where \(g\) is the gap and \(\lambda_n\) the normal force: either the gap is open and the force is zero, or they touch and the force pushes. This is a **linear complementarity problem (LCP)**, the core of physics engines (MuJoCo, Drake, PhysX) — and it is exactly the **Signorini condition** of contact mechanics in FEM.
+where \(g\) is the gap and \(\lambda_n\) the normal force: either the gap is open and the force is zero, or they touch and the force pushes. Discretized in time and linearized, this becomes a **linear complementarity problem (LCP)**, the classic core of rigid-body simulators (ODE, Bullet and PhysX-style iterative solvers); MuJoCo and Drake instead solve convex relaxations of it. It is exactly the **Signorini condition** of contact mechanics in FEM.
 
 **Soft and deformable objects.** A tomato, a maize leaf, or a fresh ear in its husk is not rigid. Soft contact spreads into a patch, which adds a small torsional friction (soft-finger model) and makes the cone a function of how far the finger sinks in. Leaves bend before they resist, so "where the contact is" changes with the force. Practical models:
 
@@ -172,7 +172,7 @@ This is the job of a **harvest mechanics lab**: measure \(\mu\) (tilt-plate or p
 - **Touch + 3D splats for fruit.** DexFruit uses optical tactile sensing to grip soft fruit gently and a Gaussian-splatting method (FruitSplat) to measure bruising from webcam video ([Swann et al., 2025](https://arxiv.org/pdf/2508.07118v3)) — a direct link between grasp quality and 3D phenotyping.
 - **Compliant dexterous grasp synthesis.** SpringGrasp models grasping as a spring-like process to plan grasps that stay stable under shape uncertainty from partial views ([Chen, Bohg & Liu, 2024](https://arxiv.org/pdf/2404.13532)).
 - **Tactile slip detection.** Learned slip detectors from optical tactile sensors estimate the contact force field to tell "about to slip" before it happens ([arXiv 2303.00935](https://arxiv.org/abs/2303.00935v2); [deformation-field severity, arXiv 2411.07442](https://arxiv.org/html/2411.07442)).
-- **Classic metric still in use.** The Ferrari–Canny \(\varepsilon\) metric (1992) remains the standard label for learned grasp datasets.
+- **Classic metric still in use.** The Ferrari–Canny \(\varepsilon\) metric (1992) is still widely used to score and label grasps in learned grasp datasets.
 
 ## Challenges
 
